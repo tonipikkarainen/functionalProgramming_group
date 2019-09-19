@@ -5,7 +5,8 @@ import Graphics.Gloss.Interface.Pure.Simulate
 import Graphics.Gloss.Interface.Pure.Display
 import Graphics.Gloss.Data.Picture
 
-data AsteroidWorld = Play [Rock] Ship [Bullet]  --Ufo
+-- SOMETHING ADDED!
+data AsteroidWorld = Play [Rock] Ship [Bullet] Ufo -- Ufo added here
                    | GameOver 
                    deriving (Eq,Show)
 
@@ -21,10 +22,12 @@ data Bullet = Bullet PointInSpace Velocity Age
     deriving (Eq,Show)
 data Rock   = Rock   PointInSpace Size Velocity 
     deriving (Eq,Show)
--- Added ufo
---data Ufo  = Ufo  PointInSpace Velocity 
---    deriving (Eq,Show)
+-- SOMETHING ADDED!
+-- Added data Ufo
+data Ufo  = Ufo  PointInSpace Velocity 
+    deriving (Eq,Show)
 
+-- SOMETHING ADDED!
 initialWorld :: AsteroidWorld
 initialWorld = Play
                    [Rock (150,150)  45 (2,6)    
@@ -35,18 +38,20 @@ initialWorld = Play
                    ] -- The default rocks
                    (Ship (0,0) (0,5)) -- The initial ship
                    [] -- The initial bullets (none)
-                   --(Ufo (20,0) (0,5)) -- The Ufo (added)
+                   (Ufo (20,0) (0,0)) -- The Ufo (added)
 
 
 simulateWorld :: Float -> (AsteroidWorld -> AsteroidWorld)
 
 simulateWorld _        GameOver          = GameOver  
 
-simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets) 
+-- SOMETHING ADDED!
+simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets (Ufo ufoPos ufoV)) -- Ufo added here
   | any (collidesWith shipPos) rocks = GameOver
   | otherwise = Play (concatMap updateRock rocks) 
                               (Ship newShipPos shipV)
                               (concat (map updateBullet bullets))
+                              (Ufo newUfoPos ufoV) -- Ufo added here
   where
       collidesWith :: PointInSpace -> Rock -> Bool
       collidesWith p (Rock rp s _) 
@@ -78,6 +83,9 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets)
       newShipPos :: PointInSpace
       newShipPos = restoreToScreen (shipPos .+ timeStep .* shipV)
 
+      newUfoPos :: PointInSpace
+      newUfoPos = restoreToScreen (ufoPos .+ timeStep .* ufoV) -- Ufo position added here
+
 splitRock :: Rock -> [Rock]
 splitRock (Rock p s v) = [Rock p (s/2) (3 .* rotateV (pi/3)  v)
                          ,Rock p (s/2) (3 .* rotateV (-pi/3) v) ]
@@ -100,36 +108,55 @@ drawWorld GameOver
      . text 
      $ "Game Over!"
 
--- ADDED
--- Changed bullets to blue rectangles
-drawWorld (Play rocks (Ship (x,y) (vx,vy))  bullets) --(Ufo (xu,yu) (vxu, vxy)) )
-  = pictures [ship, asteroids,shots]--, ufo]
+-- SOMETHING ADDED!
+drawWorld (Play rocks (Ship (x,y) (vx,vy))  bullets (Ufo (xu,yu) (vxu, vxy)) )
+  = pictures [ship, asteroids,shots, ufo]
    where 
     ship      = color red (pictures [translate x y (circle 10)])
     asteroids = pictures [translate x y (color orange (circle s)) 
                          | Rock   (x,y) s _ <- rocks]
-    shots     = pictures [translate x y (color blue (rectangleSolid 10 10)) 
+    shots     = pictures [translate x y (color blue (rectangleSolid 10 10)) -- Changed bullets to blue rectangles
                          | Bullet (x,y) _ _ <- bullets]
-    --ufo       = color blue (pictures [translate xu yu (circle 10)])                      
-    -- added ufo
+    ufo       = color green (pictures [translate xu yu (rectangleSolid 30 7)]) -- green ufo added                     
 
 handleEvents :: Event -> AsteroidWorld -> AsteroidWorld
 
--- ADDED
+-- SOMETHING ADDED!
 -- Now it is possible to start a new game after "game over" with space
 handleEvents (EventKey (SpecialKey KeySpace) Down _ _) GameOver = initialWorld 
                         
 
-
+-- SOMETHING ADDED!
 handleEvents (EventKey (MouseButton LeftButton) Down _ clickPos)
-             (Play rocks (Ship shipPos shipVel) bullets)
+             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
              = Play rocks (Ship shipPos newVel) 
                           (newBullet : bullets)
+                          (Ufo ufoPos ufoV)
  where 
      newBullet = Bullet shipPos 
                         (negate 150 .* norm (shipPos .- clickPos)) 
                         0
      newVel    = shipVel .+ (50 .* norm (shipPos .- clickPos))
+
+-- SOMETHING ADDED!
+-- Here ufo is given some velocity to left when keyleft is pressed
+handleEvents (EventKey (SpecialKey KeyLeft) Down _ _)
+             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
+             = Play rocks (Ship shipPos shipVel) 
+                          bullets
+                          (Ufo ufoPos newUfoV)
+ where 
+     newUfoV    = ufoV .+ (50 .* (-1,0))
+
+-- SOMETHING ADDED!
+-- Here ufo is given some velocity to right when keyright is pressed
+handleEvents (EventKey (SpecialKey KeyRight) Down _ _)
+             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
+             = Play rocks (Ship shipPos shipVel) 
+                          bullets
+                          (Ufo ufoPos newUfoV)
+ where 
+     newUfoV    = ufoV .+ (50 .* (1,0))
 
 handleEvents _ w = w
 
