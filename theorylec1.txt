@@ -1,0 +1,90 @@
+Q1
+Given the definition,
+
+product [] = 0                  -- 1.
+product (x:xs) = x * product xs -- 2.
+What does product [1,2,3] evaluate to?
+
+Mark these either as True or False:
+The number 0
+
+The number 1
+
+The number 3
+
+The number 6
+
+Vastaus: 0 
+Kun sijoitellaan, saadaan lopulta 1*(2*(3*(product []))) ja koska product [] = 0, 
+lopulta kaikki kerrotaan nollalla ja tulos on 0. 
+
+Q3
+Which of the following are correct and proper uses of if expressions? (Assume x to be suitably typed variable)
+
+Mark these either as True or False:
+if x then "Good" else "Bad"
+
+if x else "Bad"
+
+if x then "Good"
+
+if x == True then "Good" else "Bad"
+
+Vastaus: 
+Viimeinen on oikein. vai ensimmäinen? vai molemamt? Pitää olla sekä then että else osa, siksi toinen ja kolmas eivät käy.
+Vai onko tuo == käytetty merkki haskellissa? 
+
+Q4
+To which x does the x refer to in the following:
+
+module Main where
+x1 = "Jill"
+greeting x2 = "Hello, " ++ x
+test = let x3 = "Jimmy" in greeting x3
+(subscripts are not part of variable names)
+
+Mark these either as True or False:
+x1
+x2
+x3
+
+Vastaus: x2 True
+
+Q5
+L1_Q5_2018_2
+Is the operator << left- or right-associative? The expression is a<<b<<c<<d. AST
+
+Mark these either as True or False:
+Right 
+Left
+Vastaus: << left-associative
+
+Q6
+What expression results in the following AST? AST
+
+Mark these either as True or False:
+((map f) x):xs
+
+(map f) x:xs
+
+map f (x:xs)
+
+map f x:xs 
+
+Vastaus: ehkä (map f) x:xs
+
+
+Q7
+What is atan2 pi/12 pi*2.1?
+
+(Hint: / and * are left associative, with precedence 7)
+
+Mark these either as True or False:
+
+Function application (f x)
+
+Division (E1 / E2)
+
+Multiplication (E1 * E2)
+
+Syntax error
