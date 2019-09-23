@@ -1,0 +1,11 @@
+git branch -- näyttää, mitä brancheja "saatavilla" ja missä olet
+git checkout <branch_name> -- vaihtaa työympäristön tiettyyn branchiin
+git fetch --all -- tällä saa kaikki "remotessa (githubissa)" olevat branchit saataville lokaalisti
+(pitää tehdä checkout, että saa branchit näkyviin "git branch"-komennolla)
+
+git add . -- lisää tiedostot staging arealle
+git commit -m "message" -- commitoi tiedostot
+
+git push origin <branch_name>  -- tällä saa työnnettyä tiedostot haluamaansa branchiin remoteen (githubiin)
+
+Pitää olla tarkkana, mihin branchiin muutoksia työntää.
