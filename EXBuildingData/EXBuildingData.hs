@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
+
 newtype Meter = M Double 
     deriving (Eq,Ord,Show)
 
