@@ -113,7 +113,7 @@ drawWorld (Play rocks (Ship (x,y) (vx,vy))  bullets (Ufo (xu,yu) (vxu, vxy)) )
   = pictures [ship, asteroids,shots, ufo]
    where 
     ship      = color red (pictures [translate x y (circle 10)])
-    asteroids = pictures [translate x y (color orange (circle s)) 
+    asteroids = pictures [translate x y (color orange (rectangleWire s s)) -- rocks changed 
                          | Rock   (x,y) s _ <- rocks]
     shots     = pictures [translate x y (color blue (rectangleSolid 10 10)) -- Changed bullets to blue rectangles
                          | Bullet (x,y) _ _ <- bullets]
