@@ -29,7 +29,7 @@ resolver: lts-9.12
 #   - auto-update
 #   - wai
 packages:
-- .
+- '.'
 extra-deps: []
 flags: {}
 extra-package-dbs: []
