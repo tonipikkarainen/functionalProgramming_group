@@ -1,0 +1,138 @@
+L2_Q0_2018_2
+
+\x -> (x <*> (\y -> (y / 2)))  F
+
+((\x -> x) <*> (\y -> y)) / 2 F
+
+(\x -> x) <*> ((\y -> y ) / 2)  T
+
+En ole ihan varma, mutta ilmeisesti "<*>" -merkin molemmilla puolilla täytyy olla arvot.
+
+L2_Q1_2018_2
+
+a) if, b) if F
+
+a) if, b) case T
+
+a) case, b) if F
+
+a) case, b) case F
+
+a) Tarkistetaan, onko listan pituus 5, jos on, palautetaan true, jos ei, niin false.
+b) Tehdään funktio, jolle annetaan participant. Tehdään caset, jolla katsotaan pattern matchingilla, onko tyyppi konstruktori teacher vai student.
+
+L2_Q2_2018_2
+Which of these are the same as [1,2,3]?
+
+Mark these either as True or False:
+1:2:3 F
+
+1:[2:3] F
+
+1:2:[3] T
+
+1:2:3:[] T
+
+Operaattorilla ":" liitetään arvo, johonkin listaan. Kahdessa ylimmässä yritetään liittää suoraan toiseen arvoon.
+
+L2_Q3_2018_2
+How do you create a value of type ListOf?
+
+data ListOf a = Null | Cons a (ListOf a)
+Mark these either as True or False:
+
+Null T
+
+ListOf [1,2,3] F
+
+Cons 4 (ListOf a) F
+
+Cons 5 (Cons 6 (Null)) T
+
+let l = Cons 1 l in l F
+
+ListOf ei ole konstruktori (kohdat 1 ja 2), viimeisessä jäisi muoto Cons 1 l ja l ei ole kummankaan konstruktorin mukainen rakenne.
+
+
+L2_Q4_2018_2
+What does
+
+case Just (Left 1) of
+    Nothing        -> "A" F 
+    Just (Right 1) -> "B" F
+    Just x         -> "C" T
+    Just (Left 1)  -> "D" F
+evaluate to? 
+
+Otetaan ensimmäinen hahmo, johon casen jälkeen tuleva arvo matchaa. Ja se on Just x.
+
+L2_Q5_2018_2
+What constructors are defined here?
+
+data PyType = PyBool Bool
+            | PyInt Int
+            | PyDouble Double
+            | PyFun ([PyType] -> IO PyType)
+Mark these either as True or False:
+PyType F
+
+PyBool T
+
+Bool F
+
+PyFun T
+
+PyType ja Bool ovat tyyppejä.
+
+L2_Q6_2018_2
+What is the type of PyFun given:
+
+data PyType = PyBool Bool
+            | PyInt Int
+            | PyDouble Double
+            | PyFun ([PyType] -> IO PyType)
+Mark these either as True or False:
+
+PyFun :: [PyType] -> IO PyType F
+
+PyFun :: ([PyType] -> IO PyType) -> PyType F
+
+PyFun :: [PyType] -> IO PyType -> PyType F
+ 
+Constructors don't have a type T
+
+En ole ihan täysin varma tästä, mutta luulisin, että on näin. Koska konstruktorillahan luodaan PyType -tyyppinen ilmentymä, olisi outoa ajatella, että sillä olisi tyyppi. Tosin, jos on, niin se on varmaan tuo toinen vaihtoehto.
+
+
+L2_Q7_2018_2
+data PyType = PyBool Bool
+            | PyInt Int
+            | PyDouble Double
+            | PyFun ([PyType] -> IO PyType)
+What is the type of PyFun boo if PyFun boo is well typed?
+
+Mark these either as True or False:
+PyFun boo :: [PyType] -> IO PyType F
+
+PyFun boo :: IO PyType F
+
+PyFun boo :: PyType T
+
+Konstruktorilla luodaan PyType tyyppinen ilmentymä.
+
+L2_Q8_2018_2
+How would you define LoginResult in
+
+checkUserLogin :: User -> SessionCookie -> LoginResult
+(e.g for a function that handles logging in to this web page)
+
+Mark these either as True or False:
+type LoginResult = Bool F
+
+type LoginResult = Maybe UserInfo T
+
+type LoginResult = (UserInfo,Bool) F
+
+type LoginResult = String F
+
+Olisiko turvallisin vaihtoehto palauttaa jokin tällainen oma datatyyppi? Jos tulee Nothing niin ei pääse sisälle.
