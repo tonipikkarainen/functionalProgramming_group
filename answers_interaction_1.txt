@@ -1,0 +1,51 @@
+Interaction Lecture 1
+
+L1_Q1_2018_2
+
+Answer1: 0 
+With assignment we get 1*(2*(3*(product []))) product is [] = 0, and therefore the result is 0.
+
+Answer2: 
+
+    The number 0
+
+    The number 1
+
+    The number 3
+
+    The number 6
+
+All True.
+
+L1_Q3_2018_2
+
+Answer 3:
+if x then "Good" else "Bad", is correct
+if x else "Bad" , does not make sense without then
+if x then "Good", can't be used without else
+if x == True then "Good" else "Bad", if then else not valid for boolean
+
+L1_Q4_2018_2Q
+
+Answer 4:
+x_1 = "Jill", x_1 refers to "Jill" 
+greeting x_2 = "Hello, " ++ x, x_2 refers to x or actually vice versa
+test = let x_3 = "Jimmy" in greeting x_3, x_3 refers to x_3
+
+Mark these either as True or False:
+x1, True
+x2, True
+x3, True
+
+L1_Q5_2018_2
+
+Answer 5:
+<< is left-associative
+
+
+L1_Q6_2018_2
+
+??
+
+L1_Q7_2018_2
+???
