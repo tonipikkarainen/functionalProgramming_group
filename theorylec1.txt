@@ -6,10 +6,10 @@ product (x:xs) = x * product xs -- 2.
 What does product [1,2,3] evaluate to?
 
 Mark these either as True or False:
-The number 0
-The number 1
-The number 3
-The number 6
+The number 0 True
+The number 1 False
+The number 3 False
+The number 6 False
 
 Vastaus: 0 True
 Kun sijoitellaan, saadaan lopulta 1*(2*(3*(product []))) ja koska product [] = 0,
@@ -21,13 +21,13 @@ Which of the following are correct and proper uses of if expressions?
 (Assume x to be suitably typed variable)
 
 Mark these either as True or False:
-if x then "Good" else "Bad"
-if x else "Bad"
-if x then "Good"
-if x == True then "Good" else "Bad"
+if x then "Good" else "Bad" True
+if x else "Bad" False
+if x then "Good" False
+if x == True then "Good" else "Bad" True
 
 Vastaus:
-Ensimmäinen on oikein.
+Ensimmäinen ja viimeinen ovat oikein.
 If-lausekkeessa pitää olla sekä then että else osa, siksi toinen ja kolmas eivät käy.
 
 
@@ -41,11 +41,11 @@ test = let x3 = "Jimmy" in greeting x3
 (subscripts are not part of variable names)
 
 Mark these either as True or False:
-x1
-x2
-x3
+x1 False
+x2 True
+x3 False
 
-Vastaus: x2 True
+Vastaus: x2 True - x viittaa funktiolle greeting annettavaan parametriin x2.
 
 
 Q5
@@ -53,20 +53,20 @@ L1_Q5_2018_2
 Is the operator << left- or right-associative? The expression is a<<b<<c<<d.
 
 Mark these either as True or False:
-Right
-Left
+Right False
+Left True
 
-Vastaus: << left-associative
+Vastaus: << left-associative. Sen näkee puusta.
 
 
 Q6
 What expression results in the following AST?
 
 Mark these either as True or False:
-((map f) x):xs
-(map f) x:xs
-map f (x:xs)
-map f x:xs
+((map f) x):xs False
+(map f) x:xs   False
+map f (x:xs)   True
+map f x:xs     False
 
 Vastaus: ehkä (map f) x:xs
 
@@ -77,9 +77,9 @@ What is atan2 pi/12 pi*2.1?
 (Hint: / and * are left associative, with precedence 7)
 
 Mark these either as True or False:
-Function application (f x)
-Division (E1 / E2)
-Multiplication (E1 * E2)
-Syntax error
+Function application (f x)  
+Division (E1 / E2)          False
+Multiplication (E1 * E2)    False
+Syntax error                True
 
-Vastaus: 
+Vastaus:
