@@ -139,7 +139,38 @@ handleEvents (EventKey (MouseButton LeftButton) Down _ clickPos)
                         0
      newVel    = shipVel .+ (50 .* norm (shipPos .- clickPos))
 
--- handleEvents jossa ufon nopeus
+-- handleEvents jossa ufoa liikutetaan nuolinäppäimillä
+handleEvents (EventKey (SpecialKey KeyLeft) Down _ _)
+             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
+              = Play rocks (Ship shipPos shipVel)
+                           bullets
+                           (Ufo ufoPos newUfoV)
+ where
+     newUfoV = ufoV .+(50 .* (-1,0))
+
+handleEvents (EventKey (SpecialKey KeyRight) Down _ _)
+             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
+              = Play rocks (Ship shipPos shipVel)
+                            bullets
+                            (Ufo ufoPos newUfoV)
+  where
+      newUfoV = ufoV .+(50 .* (1,0))
+
+handleEvents (EventKey (SpecialKey KeyUp) Down _ _)
+             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
+              = Play rocks (Ship shipPos shipVel)
+                            bullets
+                            (Ufo ufoPos newUfoV)
+  where
+      newUfoV = ufoV .+(50 .* (0,1))
+
+handleEvents (EventKey (SpecialKey KeyDown) Down _ _)
+             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
+              = Play rocks (Ship shipPos shipVel)
+                            bullets
+                            (Ufo ufoPos newUfoV)
+    where
+        newUfoV = ufoV .+(50 .* (0,-1))
 
 handleEvents _ w = w
 
