@@ -5,7 +5,8 @@ import Graphics.Gloss.Interface.Pure.Simulate
 import Graphics.Gloss.Interface.Pure.Display
 import Graphics.Gloss.Data.Picture
 
-data AsteroidWorld = Play [Rock] Ship [Bullet] Ufo  --Ufo Added
+-- UFO added here
+data AsteroidWorld = Play [Rock] Ship [Bullet] Ufo
                    | GameOver
                    deriving (Eq,Show)
 
@@ -42,7 +43,7 @@ simulateWorld :: Float -> (AsteroidWorld -> AsteroidWorld)
 
 simulateWorld _        GameOver          = GameOver
 
--- ufo added here
+-- UFO added here
 simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets (Ufo ufoPos ufoV))
   | any (collidesWith shipPos) rocks = GameOver
   | otherwise = Play (concatMap updateRock rocks)
@@ -80,7 +81,7 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets (Ufo ufoPos ufoV
       newShipPos :: PointInSpace
       newShipPos = restoreToScreen (shipPos .+ timeStep .* shipV)
 
--- ufo position added here
+-- UFO position added here
       newUfoPos :: PointInSpace
       newUfoPos = restoreToScreen (ufoPos .+ timeStep .* ufoV)
 
@@ -109,15 +110,16 @@ drawWorld GameOver
 -- ADDED
 -- Changed bullets to blue rectangles
 -- Changed shapes and colors
+-- added green UFO
 drawWorld (Play rocks (Ship (x,y) (vx,vy))  bullets (Ufo (xu,yu) (vxu, vxy)) )
   = pictures [ship, asteroids, shots, ufo]
    where
-    ship      = color red (pictures [translate x y (thickCircle 5 10)]) -- changed
+    ship      = color red (pictures [translate x y (circleSolid 10)]) -- changed
     asteroids = pictures [translate x y (color yellow (circle s))
                          | Rock   (x,y) s _ <- rocks]
     shots     = pictures [translate x y (color blue (rectangleSolid 10 10))
                          | Bullet (x,y) _ _ <- bullets] -- changed
-    ufo       = color green (pictures [translate xu yu (circleSolid 10)]) --changed
+    ufo       = color green (pictures [translate xu yu (rectangleSolid 20 15)]) --changed
     -- added ufo
 
 handleEvents :: Event -> AsteroidWorld -> AsteroidWorld
@@ -127,7 +129,6 @@ handleEvents :: Event -> AsteroidWorld -> AsteroidWorld
 handleEvents (EventKey (SpecialKey KeySpace) Down _ _) GameOver = initialWorld
 
 
--- ufo movement added here
 handleEvents (EventKey (MouseButton LeftButton) Down _ clickPos)
              (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
              = Play rocks (Ship shipPos newVel)
@@ -139,7 +140,7 @@ handleEvents (EventKey (MouseButton LeftButton) Down _ clickPos)
                         0
      newVel    = shipVel .+ (50 .* norm (shipPos .- clickPos))
 
--- handleEvents jossa ufoa liikutetaan nuolinäppäimillä
+-- UFO movement added here
 handleEvents (EventKey (SpecialKey KeyLeft) Down _ _)
              (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
               = Play rocks (Ship shipPos shipVel)
