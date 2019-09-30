@@ -1,9 +1,6 @@
-Q1
+Vastaukset ensimmäisen teorialuennon kysymyksiin
 
-Given the definition,
-product [] = 0                  -- 1.
-product (x:xs) = x * product xs -- 2.
-What does product [1,2,3] evaluate to?
+Q1
 
 Mark these either as True or False:
 The number 0 True
@@ -32,13 +29,6 @@ If-lausekkeessa pitää olla sekä then että else osa, siksi toinen ja kolmas e
 
 
 Q4
-To which x does the x refer to in the following:
-
-module Main where
-x1 = "Jill"
-greeting x2 = "Hello, " ++ x
-test = let x3 = "Jimmy" in greeting x3
-(subscripts are not part of variable names)
 
 Mark these either as True or False:
 x1 False
@@ -50,7 +40,6 @@ Vastaus: x2 True - x viittaa funktiolle greeting annettavaan parametriin x2.
 
 Q5
 L1_Q5_2018_2
-Is the operator << left- or right-associative? The expression is a<<b<<c<<d.
 
 Mark these either as True or False:
 Right False
@@ -68,7 +57,8 @@ Mark these either as True or False:
 map f (x:xs)   True
 map f x:xs     False
 
-Vastaus: ehkä (map f) x:xs
+Vastaus: map f (x: xs). Mapin ensimmäinen argumentti on funktio f,
+ja sitten tämä funktioiden yhdistelmä ottaa argumentikseen listan (x:xs).
 
 
 Q7
@@ -77,9 +67,11 @@ What is atan2 pi/12 pi*2.1?
 (Hint: / and * are left associative, with precedence 7)
 
 Mark these either as True or False:
-Function application (f x)  
+Function application (f x)  False
 Division (E1 / E2)          False
 Multiplication (E1 * E2)    False
 Syntax error                True
 
-Vastaus:
+Vastaus: atan2 ottaa kaksi argumenttia, mutta tässä tapauksessa
+operaattori / katkaisee argumenttien listan, eli niitä tulee vain yksi,
+mitä kääntäjä ei hyväksy. 
