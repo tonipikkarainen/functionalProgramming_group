@@ -1,9 +1,9 @@
 Q0 How do you parenthesise
 \x -> x <*> \y -> y / 2 ?
 Mark these either as True or False:
-    \x -> (x <*> (\y -> (y / 2)))
-    ((\x -> x) <*> (\y -> y)) / 2
-    (\x -> x) <*> ((\y -> y ) / 2)
+    \x -> (x <*> (\y -> (y / 2))) True
+    ((\x -> x) <*> (\y -> y)) / 2 False
+    (\x -> x) <*> ((\y -> y ) / 2) False
 
 Vastaus: True, False, False
 
@@ -12,24 +12,23 @@ and list participants :: [Participant]. Which structure would be most suitable f
 a) Checking that there are atleast 5 participants (in the list), and
 b) Checking that if a participant a teacher
 Mark these either as True or False:
-    a) if, b) if
-    a) if, b) case
-    a) case, b) if
-    a) case, b) case
+    a) if, b) if    False
+    a) if, b) case  True
+    a) case, b) if  False
+    a) case, b) case True
 
-Q1 Vastaus: toinen kohta True, a) if, b) case. Tai viimeinen,
-a) case ja b) case? Joka tapauksessa b-kohdassa pitää testata sekä
+Q1 Vastaus:  Joka tapauksessa b-kohdassa pitää testata sekä
 vaihtoehto että osallistuja on opettaja että se, että se on oppilas.
 Se onnistuu parhaiten case-rakenteella.
 
 Q2 Which of these are the same as [1,2,3]?
 Mark these either as True or False:
-    1:2:3
-    1:[2:3]
-    1:2:[3]
-    1:2:3:[]
+    1:2:3    False
+    1:[2:3]  False
+    1:2:[3]  True
+    1:2:3:[] True
 
-Q2 Vastaus: False, False, True, True.
+Q2 Vastaus: Paitsi niissä pitäisi olla sulut?
 
 Q3
 How do you create a value of type ListOf?
@@ -52,12 +51,12 @@ case Just (Left 1) of
     Just (Left 1)  -> "D"
 evaluate to?
 Mark these either as True or False:
-    "A"
-    "B"
-    "C"
-    "D"
+    "A"   False
+    "B"   False
+    "C"   False
+    "D"   True
 
-Q4 Vastaus: False, False, False, True
+Q4 Vastaus:
 
 Q5
 What constructors are defined here?
@@ -67,10 +66,10 @@ data PyType = PyBool Bool
             | PyFun ([PyType] -> IO PyType)
 
 Mark these either as True or False:
-    PyType
-    PyBool
-    Bool
-    PyFun
+    PyType True
+    PyBool True
+    Bool    False
+    PyFun   True
 
 Q5 Vastaus:
 
@@ -108,9 +107,10 @@ How would you define LoginResult in
 checkUserLogin :: User -> SessionCookie -> LoginResult
 (e.g for a function that handles logging in to this web page)
 Mark these either as True or False:
-    type LoginResult = Bool
-    type LoginResult = Maybe UserInfo
-    type LoginResult = (UserInfo,Bool)
-    type LoginResult = String
+    type LoginResult = Bool           False
+    type LoginResult = Maybe UserInfo True
+    type LoginResult = (UserInfo,Bool) False
+    type LoginResult = String           False
 
-Q8 Vastaus:
+Q8 Vastaus: Jos kirjautuminen onnistuu, palautetaan käyttäjätiedot, jos ei,
+palautetaan Nothing. 
