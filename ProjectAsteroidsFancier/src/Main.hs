@@ -6,7 +6,7 @@ import Graphics.Gloss.Interface.Pure.Display
 import Graphics.Gloss.Data.Picture
 import System.Random
 
--- SOMETHING ADDED!
+
 data AsteroidWorld = Play [Rock] Ship [Bullet] Ufo -- Ufo added here
                    | GameOver 
                    deriving (Eq,Show)
@@ -24,20 +24,16 @@ data Bullet = Bullet PointInSpace Velocity Age
     deriving (Eq,Show)
 data Rock   = Rock   PointInSpace Size Velocity 
     deriving (Eq,Show)
--- SOMETHING ADDED!
--- Added data Ufo
--- Tähän 3 eri tilaa--
---data Ufo  = Ufo  PointInSpace Velocity
-  --  deriving (Eq,Show)
 
 data Ufo  = Hunting PointInSpace Velocity Health| Fleeing PointInSpace Velocity Health|
     Exploding PointInSpace | Waiting PointInSpace Health Age
     deriving (Eq,Show)
 
 -- SOMETHING ADDED!
-ufoSade = 50
+ufoXpaikka = 50
 ufoSize = 30
 ufoAlkuNopeus = 1
+ufoElamat = 4
 initialWorld :: AsteroidWorld
 initialWorld = Play
                    [Rock (150,150)  45 (2,6)    
@@ -48,15 +44,32 @@ initialWorld = Play
                    ] -- The default rocks
                    (Ship (0,0) (0,5)) -- The initial ship
                    [] -- The initial bullets (none)
-                   (Hunting (ufoSade,0) (0,ufoAlkuNopeus) 4) -- The Ufo (added)
+                   (Hunting (ufoXpaikka,0) (0,ufoAlkuNopeus) ufoElamat) -- The Ufo (added)
 
 
 simulateWorld :: Float -> (AsteroidWorld -> AsteroidWorld)
 
-simulateWorld _        GameOver          = GameOver  
+simulateWorld _        GameOver   = GameOver  
 
--- SOMETHING ADDED!
--- Mistä timestep tulee, kun tätä kutsutaan ei näy timestep argumenttia???
+-- Ufolla on neljä tilaa. Ufo siirtyy updateUfo funktion avulla tilasta toiseen tiettyjen 
+-- sääntöjen mukaisesti.
+-- Aloitetaan hunting tilasta, jossa ufo liikkuu kohti laivaa.
+--  Jos ufo ammutaan se siirtyy fleeing tilaan, jossa ufo saa nopeuden pois päin laivasta.
+--  Jos t (health) on pienempää kuin 1 mennään exploding tilaan
+--  Muuten pysytään hunting tilassa
+-- Fleeing:
+--  Jos fleeing tilassa joudutaan ammutuksi, mennään waiting tilaan, jossa ufo jähmettyy
+--  paikalleen.
+--  Jos taas fleeing tilassa health on pienempää kuin 3 mennään hunting tilaan (eli pienillä 
+--  energioilla ollaan aina hunting tilassa)
+--  muuten pysytään fleeing tilassa 
+-- waiting
+--   tässä tilassa ufo on tietty ikä (age). eli ollaan paikallaan waiting tilassa niin kauan
+--   kun ikä on pienempää kuin joku tietty arvo. Tai jos ufoa ammutaan niin mennään 
+--   fleeing tilaan (tai jos energia liian pieni, mennään exploding tilaan).
+-- Exploding
+--   Tässä ufo "räjähtää" ja jää ruudulle paikalleen punaisena ympyränä. Tästä tilasta
+--    ei enää päästä mihinkään muuhun
 simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo added here
   | any (collidesWith shipPos) rocks = GameOver
   | otherwise = Play (concatMap updateRock rocks) 
@@ -131,17 +144,6 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
       newShipPos :: PointInSpace
       newShipPos = restoreToScreen (shipPos .+ timeStep .* shipV)
 
-      -- Ufolle random-nopeus
-      -- .+ (cos timeStep , cos timeStep )
-      -- v = v + a*timestep
-      -- a = v^2/r
-      -- Pistetään ufo ympyräradalle
-      --ufoAcc = -norm ufoPos
-      --newUfoV = ufoV .+ ((((magV ufoV)**2)/ufoSade)*timeStep .* ufoAcc )
-
-      --newUfoPos :: PointInSpace
-      --newUfoPos = restoreToScreen (ufoPos .+ timeStep .* newUfoV) -- Ufo position added here
-
 splitRock :: Rock -> [Rock]
 splitRock (Rock p s v) = [Rock p (s/2) (3 .* rotateV (pi/3)  v)
                          ,Rock p (s/2) (3 .* rotateV (-pi/3) v) ]
@@ -173,7 +175,6 @@ drawWorld (Play rocks (Ship (x,y) (vx,vy))  bullets ufotype)
                          | Rock   (x,y) s _ <- rocks]
     shots     = pictures [translate x y (color blue (rectangleSolid 10 10)) -- Changed bullets to blue rectangles
                          | Bullet (x,y) _ _ <- bullets]
-    --color green (pictures [translate xu yu (rectangleSolid 30 7)]) -- green ufo added                     
     ufo       = case ufotype of
       Hunting (xu,yu) _ _ -> color yellow (pictures [translate xu yu (rectangleSolid ufoSize 7)])
       Fleeing (xu,yu) _ _ -> color blue (pictures [translate xu yu (rectangleSolid ufoSize 7)])
@@ -198,27 +199,6 @@ handleEvents (EventKey (MouseButton LeftButton) Down _ clickPos)
                         0
      newVel    = shipVel .+ (50 .* norm (shipPos .- clickPos))
 
--- SOMETHING ADDED!
--- Here ufo is given some velocity to left when keyleft is pressed
-{-
-handleEvents (EventKey (SpecialKey KeyLeft) Down _ _)
-             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
-             = Play rocks (Ship shipPos shipVel) 
-                          bullets
-                          (Ufo ufoPos newUfoV)
- where 
-     newUfoV    = ufoV .+ (50 .* (-1,0))
-
--- SOMETHING ADDED!
--- Here ufo is given some velocity to right when keyright is pressed
-handleEvents (EventKey (SpecialKey KeyRight) Down _ _)
-             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
-             = Play rocks (Ship shipPos shipVel) 
-                          bullets
-                          (Ufo ufoPos newUfoV)
- where 
-     newUfoV    = ufoV .+ (50 .* (1,0))
--}
 handleEvents _ w = w
 
 
