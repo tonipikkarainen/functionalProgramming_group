@@ -1,0 +1,62 @@
+Interaction lecture 3
+
+
+Q1
+Mark these either as True or False:
+  String                          False
+  Bool -> String                  True
+  Int -> Bool -> String           False
+  (Int -> Bool -> String) Int     False
+
+Q2
+Mark these either as True or False:
+  Int
+  Bool
+  Int -> Bool
+  Int -> Int -> Bool
+
+Q3
+Mark these either as True or False:
+  (Int -> Int -> Int) -> Int -> [Int] -> Int      True
+  (Int -> Bool -> Int) -> Bool -> [Int] -> Bool   True
+  (Int -> Bool -> Int) -> Bool -> Int -> Bool     False
+  (Int -> Bool -> Int) -> Int -> Bool -> Int      False
+
+Q4
+Mark these either as True or False:
+
+The function sad has a type error (type should be a function)
+Function argument cannot have a forall a. type, but let-bound variable can
+Function argument can have a forall a. type, but let-bound variable can't
+
+1 False
+2 True
+3 False
+
+Q5
+Mark these either as True or False:
+  Ei voi
+  Kyllä voi, mutta sitä lauseketta ei voi laskea
+  Kyllä voi ja voi myös laskea!
+
+Q6
+Mark these either as True or False:
+  f :: forall a. Bool -> a        False
+  g :: forall a. a -> Bool        True
+  h :: forall a b. (b -> a) -> a
+  j :: forall a b. b -> (a -> b)
+
+Q7
+Mark these either as True or False:
+
+Because you can always make a function that returns True for all inputs
+Because you can always check if the argument (of type a) is null and return True/False based on that
+Function can return True if it is given an argument and False otherwise
+Anything can be converted to a Bool. E.g., 1=True and 0=False
+
+Q8
+Mark these either as True or False:
+  (\ f xs -> ...) :: forall a. (a->a) -> [a] -> [a]
+  (\xs -> \x -> ...) :: forall a. [a] -> (a->a)
+  (\xs -> \y -> ...) :: forall a b. [b] -> (a->a)
+  (\xs -> \ f -> ...) ::forall a. [a] -> (a->a) -> [a]
