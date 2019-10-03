@@ -1,22 +1,5 @@
-L3_Q1_2018_1
-Let's review how function application is typed. Given that
+L4_Q1_2018_2
 
-f :: Int -> Bool -> String
-x :: Int
-what is f x
-
-Mark these either as True or False:
-String F
-
-Bool -> String T
-
-Int -> Bool -> String F
-
-(Int -> Bool -> String) Int F
-
-f:lle annetaan vaan yksi argumentti joten tuloksena on uusi funktio, jonka tyyppi on sellainen että se ottaa jäljelle jäävän parametrin (Bool) ja tuottaa alkuperäisen tuloksen String.
-
-L3_Q2_2018_1
 Suppose that even :: Int -> Bool. What then, is the type of
 
 \x -> even (x+1)
@@ -31,39 +14,21 @@ Int -> Int -> Bool F
 
 Parametrin x täytyy olla tyyppiä Int, koska se +1 menee even:in argumentiksi joka sitten palauttaa tyypin Bool. Siksi kyseisen funktion tyyppi on Int -> Bool.
 
-L3_Q3_2018_1
-Which are proper specializations of forall a b. (a -> b -> a) -> b -> [a] -> b?
+L4_Q2_2018_2
+In which languages is it possible for a polymorphic funtion to branch according to the type of the input expression?
 
 Mark these either as True or False:
-(Int -> Int -> Int) -> Int -> [Int] -> Int T
+Java: public static int Foo<T>(T x) {...} T
 
-(Int -> Bool -> Int) -> Bool -> [Int] -> Bool T
+C#: static int Foo<T>(T x) {...} T
 
-(Int -> Bool -> Int) -> Bool -> Int -> Bool F
+Haskell: f :: t -> Int; f = ... F
 
-(Int -> Bool -> Int) -> Int -> Bool -> Int F
+python: def f: ...  T
 
-Kolmannessa kohdassa puuttuu lista-tyyppi, ja neljännessä a on sekä bool että int (+lista puuttuu.)
+Haskellissa funktiolla ei ole keinoa toimia erilailla eri tyypeille.
 
-L3_Q4_2018_1
-Why does fun work and sad doesn't?
-
-fun :: [Double]
-fun = let x = 3 in take x (repeat x)
-sad :: [Double]
-sad = (\x -> take x (repeat x)) 3
--- take :: Int -> [a] -> [a]
--- repeat :: a -> [a]
-Mark these either as True or False:
-The function sad has a type error (type should be a function) 
-
-Function argument cannot have a forall a. type, but let-bound variable can T
-
-Function argument can have a forall a. type, but let-bound variable can't T
-
-Sanoisin, että johtuu siitä, että let vaihtoehdossa x:n tyyppi on forall a. Num a => a, joka voi sitten olla Int tai Double tilanteesta riippuen. Alemmassa vaihtoehdossa numero 3 sitten kiinnittyy Int:ksi. Mutta ylimmästä väittämästä (tyypin pitäisi olla funktio) en ole ihan varma..?
-
-L3_Q5_2018_1
+L4_Q3_2018_2
 Based on what you know about polytypes, can you write a Haskell expression with the type forall a. a?
 
 Mark these either as True or False:
@@ -75,21 +40,47 @@ Kyllä voi ja voi myös laskea! F
 
 Tässä voitaisiin määritellä esim. tyyppi Data Void (kuten luentoesimerkissä), jolla ei ole konstruktoria ja antaa tyypiksi tämä. Sitten kun siihen yritettäisiin asettaa joku arvo ohjelma kaatuu. Koska käyttäytymisen täytyy olla samanlaista kaikille tyypeille, sen pitää kaatua muillakin tyypeillä.
 
-L3_Q6_2018_1
+L4_Q4_2018_2
 Which of the types below can be given a proper implementation? (ie. aside from error, infinite recursion, etc.)
 
 Mark these either as True or False:
 f :: forall a. Bool -> a F
 
-g :: forall a. a -> Bool T 
+g :: forall a. a -> Bool T
 
-h :: forall a b. (b -> a) -> a F 
+h :: forall a b. (b -> a) -> a F
 
 j :: forall a b. b -> (a -> b) T
 
 h on false, koska argumenttina tulee funktio, jonka palauttama tyyppi pitäisi laskea, että voitaisiin palauttaa sama tyyppi. Tuota laskua ei voi tehdä jos a:n tyyppi ei ole spesifioitu. f on false, koska ei tiedetä mikä palautettavan arvon tyyppi on. g on True, koska voidaan palauttaa yksikäsitteinen tyyppi millä tahansa syötteellä. j on true koska voidaan antaa parametrina mitä tahansa ja palauttaa niistä ensimmäinen, jolloin tiedetään, mikä on palautettavan arvon tyyppiluokka.
 
-L3_Q7_2018_1
+L4_Q5_2018_2
+Based on what you know about polytypes, can you write a Haskell expression with the type forall a. a -> a?
+
+Mark these either as True or False:
+Ei voi F
+
+Kyllä voi, mutta sitä lauseketta ei voi laskea F
+
+Kyllä voi ja voi myös laskea! T
+
+Identiteettifunktio käy tähän.
+
+L4_Q6_2018_2
+If I have function f :: forall a. a -> a it can be:
+
+Mark these either as True or False:
+Stall or crash the program F
+
+It can be a constant function, ie. function that always returns the same value F
+
+It can be the identity function: \x->x T
+
+It can change it's input in almost any imaginable way F
+
+Ainut vaihtoehto on identiteetti funktio. Ei ole mitään universaalia operaatiota, jolla voitaisiin muuttaa mielivaltaisen tyypin expressiota, siten että tyyppi säilyy samana.
+
+L4_Q7_2018_2
 Why is it possible to implement forall a. a -> Bool but not forall a. Bool -> a?
 
 Mark these either as True or False:
@@ -97,23 +88,39 @@ Because you can always make a function that returns True for all inputs T
 
 Because you can always check if the argument (of type a) is null and return True/False based on that F
 
-Function can return True if it is given an argument and False otherwise F
+Function can return True if it is given an argument and False otherwise T
 
 Anything can be converted to a Bool. E.g., 1=True and 0=False F
 
 Emme voi tehdä mitään laskuja funktion argumentilla, kun sille ei ole spesifioitu tyyppiä. Ja funktio ei palauta tyyppinsä mukaista tyyppiä ellei sille anneta argumenttia. Jos sille ei anneta argumenttia sen tyyppi on edelleen a -> Bool
 
+L4_Q8_2018_2
+If we know that f :: forall a. [a] -> Maybe a, but we don't know how f is implemented, what can we deduce from the following test
 
-L3_Q8_2018_1
+f "foobar" = Just 'f'
+Mark these either as True or False:
+f [1,2,3,4,5,6] == Just 1 T
+
+f [True,False,True,False,True,False] == Just True T
+
+f always returns the first element of the input list F
+
+f [] == Nothing or computation of f crashes/never terminates F
+
+f [1] == Just 1 F
+
+Ei voida päätellä muuta kuin, että listan, jonka pituus on 6 ollessa argumenttina palautetaan ensimmäinen alkio.
+
+L4_Q9_2018_2
 We know that function with type forall a. a -> a is always an identity function. How about if the term a->a appears inside a bigger type? Must the corresponding argument/result be an identity function in the types below?
 
 Mark these either as True or False:
-(\ f xs -> ...) :: forall a. (a->a) -> [a] -> [a] F 
+(\ f xs -> ...) :: forall a. (a->a) -> [a] -> [a] F
 
-(\xs -> \x -> ...) :: forall a. [a] -> (a->a) puoliksi F 
+(\xs -> \x -> ...) :: forall a. [a] -> (a->a) F
 
 (\xs -> \y -> ...) :: forall a b. [b] -> (a->a) T
 
-(\xs -> \ f -> ...) ::forall a. [a] -> (a->a) -> [a] F 
+(\xs -> \ f -> ...) ::forall a. [a] -> (a->a) -> [a] F
 
 False tapauksissa funktio voidaan määritellä tilanteeseen sopivalla tavalla. 
