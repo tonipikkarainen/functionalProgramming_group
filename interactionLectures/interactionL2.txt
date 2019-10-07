@@ -1,12 +1,12 @@
 L2_Q0_2018_2
 
-\x -> (x <*> (\y -> (y / 2)))  F
+\x -> (x <*> (\y -> (y / 2)))  T
 
 ((\x -> x) <*> (\y -> y)) / 2 F
 
-(\x -> x) <*> ((\y -> y ) / 2)  T
+(\x -> x) <*> ((\y -> y ) / 2)  F
 
-En ole ihan varma, mutta ilmeisesti "<*>" -merkin molemmilla puolilla täytyy olla arvot.
+Lambda-lausekkeet sulutetaan tässä järjestyksessä.
 
 L2_Q1_2018_2
 
@@ -95,13 +95,13 @@ Mark these either as True or False:
 
 PyFun :: [PyType] -> IO PyType F
 
-PyFun :: ([PyType] -> IO PyType) -> PyType F
+PyFun :: ([PyType] -> IO PyType) -> PyType T
 
 PyFun :: [PyType] -> IO PyType -> PyType F
  
-Constructors don't have a type T
+Constructors don't have a type F
 
-En ole ihan täysin varma tästä, mutta luulisin, että on näin. Koska konstruktorillahan luodaan PyType -tyyppinen ilmentymä, olisi outoa ajatella, että sillä olisi tyyppi. Tosin, jos on, niin se on varmaan tuo toinen vaihtoehto.
+PyFunin tyyppi kertoo, että kun sille annetaan ([PyType] -> IO PyType)-tyyppinen funktio, se palauttaa PyType-tyyppisen arvon.
 
 
 L2_Q7_2018_2
