@@ -51,7 +51,7 @@ Mark these either as True or False:
   Kyllä voi, mutta sitä lauseketta ei voi laskea    False
   Kyllä voi ja voi myös laskea!                     False
 
-Perustelu:
+
 
 Q6
 Mark these either as True or False:
@@ -71,13 +71,13 @@ Anything can be converted to a Bool. E.g., 1=True and 0=False
 True
 False
 False
-True 
+False
 
 
 
 Q8
 Mark these either as True or False:
   (\ f xs -> ...) :: forall a. (a->a) -> [a] -> [a]
-  (\xs -> \x -> ...) :: forall a. [a] -> (a->a)
-  (\xs -> \y -> ...) :: forall a b. [b] -> (a->a)
+  (\xs -> \x -> ...) :: forall a. [a] -> (a->a)      False
+  (\xs -> \y -> ...) :: forall a b. [b] -> (a->a)    
   (\xs -> \ f -> ...) ::forall a. [a] -> (a->a) -> [a]

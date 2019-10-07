@@ -15,11 +15,12 @@ Mark these either as True or False:
     a) if, b) if    False
     a) if, b) case  True
     a) case, b) if  False
-    a) case, b) case True
+    a) case, b) case False
 
 Q1 Vastaus:  Joka tapauksessa b-kohdassa pitää testata sekä
 vaihtoehto että osallistuja on opettaja että se, että se on oppilas.
-Se onnistuu parhaiten case-rakenteella.
+Se onnistuu parhaiten case-rakenteella. Listan pituuden testaaminen lienee helpointa
+if-lauseella.
 
 Q2 Which of these are the same as [1,2,3]?
 Mark these either as True or False:
@@ -34,13 +35,13 @@ Q3
 How do you create a value of type ListOf?
 data ListOf a = Null | Cons a (ListOf a)
 Mark these either as True or False:
-    Null
-    ListOf [1,2,3]
-    Cons 4 (ListOf a)
-    Cons 5 (Cons 6 (Null))
-    let l = Cons 1 l in l
+    Null                True
+    ListOf [1,2,3]      False
+    Cons 4 (ListOf a)   False
+    Cons 5 (Cons 6 (Null))  True
+    let l = Cons 1 l in l   False
 
-Q3 Vastaus:
+Q3 Vastaus: ListOf a voi saada arvon Null tai sitten Cons a (ListOf a) mukaan rakennetun.
 
 Q4
 What does
@@ -53,10 +54,11 @@ evaluate to?
 Mark these either as True or False:
     "A"   False
     "B"   False
-    "C"   False
-    "D"   True
+    "C"   True
+    "D"   False
 
-Q4 Vastaus:
+Q4 Vastaus: Case-lauseesta mätsää ensimmäinen sopiva ylhäältä päin lähtiessä,
+tässä tapauksessa Just x.
 
 Q5
 What constructors are defined here?
@@ -71,7 +73,7 @@ Mark these either as True or False:
     Bool    False
     PyFun   True
 
-Q5 Vastaus:
+Q5 Vastaus: PyType on tyyppi ja Bool annetaan konstruktorille parametrina.
 
 Q6
 What is the type of PyFun given:
@@ -82,11 +84,12 @@ data PyType = PyBool Bool
 
 Mark these either as True or False:
     PyFun :: [PyType] -> IO PyType             False
-    PyFun :: ([PyType] -> IO PyType) -> PyType False
+    PyFun :: ([PyType] -> IO PyType) -> PyType True
     PyFun :: [PyType] -> IO PyType -> PyType   False
-    Constructors don't have a type             True
+    Constructors don't have a type             False
 
-Q6 Vastaus:
+Q6 Vastaus: PyFun määritellään funktioksi [PyType] -> IO PyType joka saa PyType-
+tyyppisen arvon.
 
 Q7
 data PyType = PyBool Bool
@@ -96,11 +99,11 @@ data PyType = PyBool Bool
 
 What is the type of PyFun boo if PyFun boo is well typed?
 Mark these either as True or False:
-    PyFun boo :: [PyType] -> IO PyType 
-    PyFun boo :: IO PyType
-    PyFun boo :: PyType
+    PyFun boo :: [PyType] -> IO PyType    False
+    PyFun boo :: IO PyType         False
+    PyFun boo :: PyType           True
 
-Q7 Vastaus:
+Q7 Vastaus: Sama perustelu kuin edellisessä.
 
 Q8
 How would you define LoginResult in

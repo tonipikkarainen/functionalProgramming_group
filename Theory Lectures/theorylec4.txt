@@ -40,6 +40,8 @@ Ei voi                                          False
 Kyllä voi, mutta sitä lauseketta ei voi laskea  False
 Kyllä voi ja voi myös laskea!                   True
 
+Perustelu: Identiteettifunktio, joka palauttaa aina syötteensä.
+
 Q6
 Mark these either as True or False:
     Stall or crash the program        False
@@ -59,7 +61,7 @@ Mark these either as True or False:
 True
 False
 False
-False
+True
 
 
 
