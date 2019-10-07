@@ -8,12 +8,19 @@ Mark these either as True or False:
   Int -> Bool -> String           False
   (Int -> Bool -> String) Int     False
 
+Perustelu: f on funktio, joka ottaa parametriksi yhden Intin ja yhden Boolin.
+Jos x on Int-tyyppinen, jäljelle jää funktio, joka tarvii vielä parametriksi Bool-
+muuttujan ja joka palauttaa Stringin.
+
 Q2
 Mark these either as True or False:
-  Int
-  Bool
-  Int -> Bool
-  Int -> Int -> Bool
+  Int                  False
+  Bool                 False
+  Int -> Bool          True
+  Int -> Int -> Bool   False
+
+Perustelu: Jotta funktiossa olisi mitään järkeä, x:n täytyy olla tyyppiä Int.
+Tällöin loppuosasta even (x+1) tulee Bool ja kokonaisuudesta Int -> Bool.
 
 Q3
 Mark these either as True or False:
@@ -21,6 +28,9 @@ Mark these either as True or False:
   (Int -> Bool -> Int) -> Bool -> [Int] -> Bool   True
   (Int -> Bool -> Int) -> Bool -> Int -> Bool     False
   (Int -> Bool -> Int) -> Int -> Bool -> Int      False
+
+  Perustelu: a-muuttujien pitää olla keskenään samaa tyyppiä ja samoin b-muuttujien
+  keskenään. a ja b voivat olla silti myös samoja. Listojen täytyy pysyä myös oikeilla paikoilla.
 
 Q4
 Mark these either as True or False:
@@ -33,18 +43,22 @@ Function argument can have a forall a. type, but let-bound variable can't
 2 True
 3 False
 
+Perustelu: let-lauseessa voi olla forall-tyyppi, muusta en ole varma.
+
 Q5
 Mark these either as True or False:
-  Ei voi
-  Kyllä voi, mutta sitä lauseketta ei voi laskea
-  Kyllä voi ja voi myös laskea!
+  Ei voi                                            True
+  Kyllä voi, mutta sitä lauseketta ei voi laskea    False
+  Kyllä voi ja voi myös laskea!                     False
+
+Perustelu:
 
 Q6
 Mark these either as True or False:
   f :: forall a. Bool -> a        False
   g :: forall a. a -> Bool        True
-  h :: forall a b. (b -> a) -> a
-  j :: forall a b. b -> (a -> b)
+  h :: forall a b. (b -> a) -> a  False
+  j :: forall a b. b -> (a -> b)  True
 
 Q7
 Mark these either as True or False:
@@ -53,6 +67,13 @@ Because you can always make a function that returns True for all inputs
 Because you can always check if the argument (of type a) is null and return True/False based on that
 Function can return True if it is given an argument and False otherwise
 Anything can be converted to a Bool. E.g., 1=True and 0=False
+
+True
+False
+False
+True 
+
+
 
 Q8
 Mark these either as True or False:

@@ -66,7 +66,7 @@ data PyType = PyBool Bool
             | PyFun ([PyType] -> IO PyType)
 
 Mark these either as True or False:
-    PyType True
+    PyType False
     PyBool True
     Bool    False
     PyFun   True
@@ -81,10 +81,10 @@ data PyType = PyBool Bool
             | PyFun ([PyType] -> IO PyType)
 
 Mark these either as True or False:
-    PyFun :: [PyType] -> IO PyType
-    PyFun :: ([PyType] -> IO PyType) -> PyType
-    PyFun :: [PyType] -> IO PyType -> PyType
-    Constructors don't have a type
+    PyFun :: [PyType] -> IO PyType             False
+    PyFun :: ([PyType] -> IO PyType) -> PyType False
+    PyFun :: [PyType] -> IO PyType -> PyType   False
+    Constructors don't have a type             True
 
 Q6 Vastaus:
 
@@ -96,7 +96,7 @@ data PyType = PyBool Bool
 
 What is the type of PyFun boo if PyFun boo is well typed?
 Mark these either as True or False:
-    PyFun boo :: [PyType] -> IO PyType
+    PyFun boo :: [PyType] -> IO PyType 
     PyFun boo :: IO PyType
     PyFun boo :: PyType
 
@@ -113,4 +113,4 @@ Mark these either as True or False:
     type LoginResult = String           False
 
 Q8 Vastaus: Jos kirjautuminen onnistuu, palautetaan käyttäjätiedot, jos ei,
-palautetaan Nothing. 
+palautetaan Nothing.

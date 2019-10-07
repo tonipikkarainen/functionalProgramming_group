@@ -1,0 +1,82 @@
+Interaction lecture 4
+
+Q1
+Mark these either as True or False:
+    Int                        False
+    Bool                       False
+    Int -> Bool                True
+    Int -> Int -> Bool         False
+
+    Perustelu: f on funktio, joka ottaa parametriksi yhden Intin ja yhden Boolin.
+    Jos x on Int-tyyppinen, jäljelle jää funktio, joka tarvii vielä parametriksi Bool-
+    muuttujan ja joka palauttaa Stringin.
+
+Q2
+Mark these either as True or False:
+    Java: public static int Foo<T>(T x) {...}    True
+    C#: static int Foo<T>(T x) {...}             True
+    Haskell: f :: t -> Int; f = ...              False
+    python: def f: ...
+
+Perustelu: Haskellissa ainakaan ei voi, sillä funktio itsessään pysyy samana
+vaikka sitä käytettäisiin eri tyypeille.
+
+Q3
+Mark these either as True or False:
+    Ei voi                                          True
+    Kyllä voi, mutta sitä lauseketta ei voi laskea  False
+    Kyllä voi ja voi myös laskea!                   False
+
+Q4
+Mark these either as True or False:
+f :: forall a. Bool -> a        False
+g :: forall a. a -> Bool        True
+h :: forall a b. (b -> a) -> a  False
+j :: forall a b. b -> (a -> b)  True
+
+Q5
+Mark these either as True or False:
+Ei voi                                          False
+Kyllä voi, mutta sitä lauseketta ei voi laskea  False
+Kyllä voi ja voi myös laskea!                   True
+
+Q6
+Mark these either as True or False:
+    Stall or crash the program        False
+    It can be a constant function, ie. function that always returns the same value False
+    It can be the identity function: \x->x   True
+    It can change it's input in almost any imaginable way  False
+
+    Perustelu: Se voi palauttaa aina saman arvon kuin minkä se saa parametrina.
+
+Q7
+Mark these either as True or False:
+    Because you can always make a function that returns True for all inputs
+    Because you can always check if the argument (of type a) is null and return True/False based on that
+    Function can return True if it is given an argument and False otherwise
+    Anything can be converted to a Bool. E.g., 1=True and 0=False
+
+True
+False
+False
+False
+
+
+
+Q8
+Mark these either as True or False:
+    f [1,2,3,4,5,6] == Just 1                                     True
+    f [True,False,True,False,True,False] == Just True             True
+    f always returns the first element of the input list          False
+    f [] == Nothing or computation of f crashes/never terminates  False
+    f [1] == Just 1                                               False
+
+Perustelu: Kolme ensimmäistä vastaavat kokeiltua syötettä, muista ei voida
+varmaksi sanoa.
+
+Q9
+Mark these either as True or False:
+    (\ f xs -> ...) :: forall a. (a->a) -> [a] -> [a]
+    (\xs -> \x -> ...) :: forall a. [a] -> (a->a)
+    (\xs -> \y -> ...) :: forall a b. [b] -> (a->a)
+    (\xs -> \ f -> ...) ::forall a. [a] -> (a->a) -> [a]
