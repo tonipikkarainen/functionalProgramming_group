@@ -1,7 +1,6 @@
 module Main where
 
 
-
   f1 :: (Int,Char,Bool) -> Char
   f1 (luku, kirj, totuus) = kirj
 

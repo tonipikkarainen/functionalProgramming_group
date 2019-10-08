@@ -25,6 +25,8 @@ data Rock   = Rock   PointInSpace Size Velocity
 -- Added ufo
 data Ufo  = Ufo  PointInSpace Velocity
     deriving (Eq,Show)
+-- data Ufo = Hunting PointInSpace Health | Fleeing PointInSpace Health
+--              | Exploding PointInSpace 
 
 initialWorld :: AsteroidWorld
 initialWorld = Play
