@@ -13,7 +13,7 @@ data AsteroidWorld = Play [Rock] Ship [Bullet] Ufo
 type Velocity     = (Float, Float)
 type Size         = Float
 type Age          = Float
-
+type Health     = Int
 
 
 data Ship   = Ship   PointInSpace Velocity
@@ -22,11 +22,13 @@ data Bullet = Bullet PointInSpace Velocity Age
     deriving (Eq,Show)
 data Rock   = Rock   PointInSpace Size Velocity
     deriving (Eq,Show)
--- Added ufo
-data Ufo  = Ufo  PointInSpace Velocity
+-- Added UFO with different constructors
+--data Ufo  = Ufo  PointInSpace Velocity
+--    deriving (Eq,Show)
+data Ufo = Hunting PointInSpace Velocity Health
+          | Fleeing PointInSpace Velocity Health
+          | Exploding PointInSpace | Waiting PointInSpace Health
     deriving (Eq,Show)
--- data Ufo = Hunting PointInSpace Health | Fleeing PointInSpace Health
---              | Exploding PointInSpace 
 
 initialWorld :: AsteroidWorld
 initialWorld = Play
@@ -38,7 +40,7 @@ initialWorld = Play
                    ] -- The default rocks
                    (Ship (0,0) (0,5)) -- The initial ship
                    [] -- The initial bullets (none)
-                   (Ufo (20,0) (0,5)) -- The Ufo (added)
+                   (Hunting (20,0) (0,5) 4) -- The initial Ufo (added)
 
 
 simulateWorld :: Float -> (AsteroidWorld -> AsteroidWorld)
@@ -46,12 +48,25 @@ simulateWorld :: Float -> (AsteroidWorld -> AsteroidWorld)
 simulateWorld _        GameOver          = GameOver
 
 -- UFO added here
-simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets (Ufo ufoPos ufoV))
+-- Tehdään UFOlle neljä tilaa. Aluksi se on Hunting-tilassa, jossa
+-- se liikkuu alusta kohti.
+-- Jos UFOa ammutaan, se siirtyy Fleeing-tilaan, jossa se liikkuu
+-- pois päin aluksesta.
+-- Aina kun ufoa ammutaan, sen health-arvo, joka on alussa 4, pienenee
+-- yhdellä.
+-- Jos UFOn health-arvo menee pienemmäksi kuin 1, siirrytään Exploding-tilaan.
+-- Jos ufoa ammutaan, kun se on Fleeing-tilassa, se menee Waiting-tilaan eli
+-- jähmettyy paikalleen.
+-- Jos ufoa ammutaan Waiting-tilassa, se menee takaisin Hunting-tilaan.
+-- Exploding-tilassa Ufo räjähtää eli jää paikalleen ja muuttuu oranssiksi,
+-- eikä enää pääse muuhun tilaan.
+-- TODO
+simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
   | any (collidesWith shipPos) rocks = GameOver
   | otherwise = Play (concatMap updateRock rocks)
                               (Ship newShipPos shipV)
                               (concat (map updateBullet bullets))
-                              (Ufo newUfoPos ufoV) -- ufo added
+                              (updateUfo ufo) -- ufo added
   where
       collidesWith :: PointInSpace -> Rock -> Bool
       collidesWith p (Rock rp s _)
@@ -60,6 +75,18 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets (Ufo ufoPos ufoV
       collidesWithBullet :: Rock -> Bool
       collidesWithBullet r
        = any (\(Bullet bp _ _) -> collidesWith bp r) bullets
+
+-- added collidesfunction
+      collidesWithBulletUfo :: Ufo ->  Bool
+      collidesWithBulletUfo ufo
+       = any (\(Bullet bp _ _) -> collidesWithUfo bp ufo) bullets
+
+      collidesWithUfo :: PointInSpace -> Ufo -> Bool
+      collidesWithUfo pos ufo = case ufo of
+         Hunting x _ _ -> True
+         Fleeing x _ _ -> True
+         Waiting x _ -> True
+         Exploding _ -> False
 
       updateRock :: Rock -> [Rock]
       updateRock r@(Rock p s v)
@@ -80,12 +107,32 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets (Ufo ufoPos ufoV
              = [Bullet (restoreToScreen (p .+ timeStep .* v)) v
                        (a + timeStep)]
 
+-- ADDED updateUfo function that updates in which state the ufo is in
+      updateUfo :: Ufo -> Ufo
+      updateUfo ufox = case ufox of
+         Hunting pos v health
+            | collidesWithBulletUfo ufox -> Fleeing (restoreToScreen (pos .+ timeStep .* v))
+              (magV(shipV).*norm(pos .- shipPos)) (health-1)
+            | health<1 -> Exploding pos
+            | otherwise -> Hunting (restoreToScreen (pos .+ timeStep .* v))
+              (magV(shipV).*norm(shipPos .- pos)) (health)
+         Fleeing pos v health
+            | collidesWithBulletUfo ufox -> Waiting (restoreToScreen (pos .+ timeStep .* v))
+              (health - 1)
+            | health<1 -> Exploding pos
+            | otherwise -> Fleeing (restoreToScreen (pos .+ timeStep .* v))
+               v health
+         Waiting pos health
+            | collidesWithBulletUfo ufox -> Hunting (restoreToScreen (pos))
+              (magV(shipV).*norm(pos .- shipPos)) (health-1)
+            | health<1 -> Exploding pos
+            | otherwise -> Waiting (restoreToScreen (pos)) (health)
+         Exploding (xu,yu) -> Exploding (xu,yu)
+
       newShipPos :: PointInSpace
       newShipPos = restoreToScreen (shipPos .+ timeStep .* shipV)
 
--- UFO position added here
-      newUfoPos :: PointInSpace
-      newUfoPos = restoreToScreen (ufoPos .+ timeStep .* ufoV)
+-- UFO position removed here
 
 splitRock :: Rock -> [Rock]
 splitRock (Rock p s v) = [Rock p (s/2) (3 .* rotateV (pi/3)  v)
@@ -112,8 +159,8 @@ drawWorld GameOver
 -- ADDED
 -- Changed bullets to blue rectangles
 -- Changed shapes and colors
--- added green UFO
-drawWorld (Play rocks (Ship (x,y) (vx,vy))  bullets (Ufo (xu,yu) (vxu, vxy)) )
+-- added different UFO types
+drawWorld (Play rocks (Ship (x,y) (vx,vy))  bullets ufotype )
   = pictures [ship, asteroids, shots, ufo]
    where
     ship      = color red (pictures [translate x y (circleSolid 10)]) -- changed
@@ -121,8 +168,11 @@ drawWorld (Play rocks (Ship (x,y) (vx,vy))  bullets (Ufo (xu,yu) (vxu, vxy)) )
                          | Rock   (x,y) s _ <- rocks]
     shots     = pictures [translate x y (color blue (rectangleSolid 10 10))
                          | Bullet (x,y) _ _ <- bullets] -- changed
-    ufo       = color green (pictures [translate xu yu (rectangleSolid 20 15)]) --changed
-    -- added ufo
+    ufo       = case ufotype of
+      Hunting (xu, yu) _ _ -> color green (pictures [translate xu yu (rectangleSolid 20 15)])
+      Fleeing (xu, yu) _ _ -> color magenta (pictures [translate xu yu (rectangleSolid 20 15)])
+      Waiting (xu, yu) _ -> color cyan (pictures [translate xu yu (rectangleSolid 20 15)])
+      Exploding (xu, yu) -> color orange (pictures [translate xu yu (rectangleSolid 20 20)])
 
 handleEvents :: Event -> AsteroidWorld -> AsteroidWorld
 
@@ -130,50 +180,19 @@ handleEvents :: Event -> AsteroidWorld -> AsteroidWorld
 -- Now it is possible to start a new game after "game over" with space
 handleEvents (EventKey (SpecialKey KeySpace) Down _ _) GameOver = initialWorld
 
-
+-- ufo tännekin
 handleEvents (EventKey (MouseButton LeftButton) Down _ clickPos)
-             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
+             (Play rocks (Ship shipPos shipVel) bullets ufo)
              = Play rocks (Ship shipPos newVel)
                           (newBullet : bullets)
-                          (Ufo ufoPos ufoV)
+                          ufo
  where
      newBullet = Bullet shipPos
                         (negate 150 .* norm (shipPos .- clickPos))
                         0
      newVel    = shipVel .+ (50 .* norm (shipPos .- clickPos))
 
--- UFO movement added here
-handleEvents (EventKey (SpecialKey KeyLeft) Down _ _)
-             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
-              = Play rocks (Ship shipPos shipVel)
-                           bullets
-                           (Ufo ufoPos newUfoV)
- where
-     newUfoV = ufoV .+(50 .* (-1,0))
-
-handleEvents (EventKey (SpecialKey KeyRight) Down _ _)
-             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
-              = Play rocks (Ship shipPos shipVel)
-                            bullets
-                            (Ufo ufoPos newUfoV)
-  where
-      newUfoV = ufoV .+(50 .* (1,0))
-
-handleEvents (EventKey (SpecialKey KeyUp) Down _ _)
-             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
-              = Play rocks (Ship shipPos shipVel)
-                            bullets
-                            (Ufo ufoPos newUfoV)
-  where
-      newUfoV = ufoV .+(50 .* (0,1))
-
-handleEvents (EventKey (SpecialKey KeyDown) Down _ _)
-             (Play rocks (Ship shipPos shipVel) bullets (Ufo ufoPos ufoV))
-              = Play rocks (Ship shipPos shipVel)
-                            bullets
-                            (Ufo ufoPos newUfoV)
-    where
-        newUfoV = ufoV .+(50 .* (0,-1))
+-- UFO movement added here and removed
 
 handleEvents _ w = w
 
