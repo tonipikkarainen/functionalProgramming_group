@@ -13,7 +13,7 @@ data AsteroidWorld = Play [Rock] Ship [Bullet] Ufo
 type Velocity     = (Float, Float)
 type Size         = Float
 type Age          = Float
-type Health     = Int
+type Health       = Int
 
 
 data Ship   = Ship   PointInSpace Velocity
@@ -60,7 +60,7 @@ simulateWorld _        GameOver          = GameOver
 -- Jos ufoa ammutaan Waiting-tilassa, se menee takaisin Hunting-tilaan.
 -- Exploding-tilassa Ufo räjähtää eli jää paikalleen ja muuttuu oranssiksi,
 -- eikä enää pääse muuhun tilaan.
--- TODO
+--
 simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
   | any (collidesWith shipPos) rocks = GameOver
   | otherwise = Play (concatMap updateRock rocks)
@@ -83,9 +83,9 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
 
       collidesWithUfo :: PointInSpace -> Ufo -> Bool
       collidesWithUfo pos ufo = case ufo of
-         Hunting x _ _ -> True
-         Fleeing x _ _ -> True
-         Waiting x _ -> True
+         Hunting x _ _ -> magV (x .- pos) < 20
+         Fleeing x _ _ -> magV (x .- pos) < 20
+         Waiting x _ -> magV (x .- pos) < 20
          Exploding _ -> False
 
       updateRock :: Rock -> [Rock]
@@ -103,6 +103,7 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
              = []
         | any (collidesWith p) rocks
              = []
+        | collidesWithUfo p ufo = []
         | otherwise
              = [Bullet (restoreToScreen (p .+ timeStep .* v)) v
                        (a + timeStep)]
