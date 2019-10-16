@@ -16,7 +16,12 @@ type Size         = Float
 type Age          = Float
 type Health       = Int
 
+class Spatial a where
+    location :: a -> PointInSpace
+    size :: a -> Float
 
+
+-- (Spatial a, Spatial b) => a -> b -> Bool
 
 data Ship   = Ship   PointInSpace Velocity      
     deriving (Eq,Show)
@@ -29,8 +34,28 @@ data Ufo  = Hunting PointInSpace Velocity Health| Fleeing PointInSpace Velocity 
     Exploding PointInSpace | Waiting PointInSpace Health Age
     deriving (Eq,Show)
 
+instance Spatial Rock where
+  location (Rock l _ _) = l
+  size (Rock _ s _ ) = s 
+
+instance Spatial Ship where
+  location (Ship l _ ) = l
+  size (Ship _ _)  = 10
+
+instance Spatial Ufo where
+  location x = case x of
+      Hunting l _ _  -> l
+      Fleeing l _ _  ->  l
+      Exploding l -> l
+      Waiting l _ _  -> l
+  size x  = ufoSize
+
+instance Spatial Bullet where
+  location (Bullet l _ _ ) = l
+  size x  = 10
+
 -- SOMETHING ADDED!
-ufoXpaikka = 50
+ufoXpaikka = -50
 ufoSize = 30
 ufoAlkuNopeus = 1
 ufoElamat = 4
@@ -44,7 +69,7 @@ initialWorld = Play
                    ] -- The default rocks
                    (Ship (0,0) (0,5)) -- The initial ship
                    [] -- The initial bullets (none)
-                   (Hunting (ufoXpaikka,0) (0,ufoAlkuNopeus) ufoElamat) -- The Ufo (added)
+                   (Hunting (ufoXpaikka,-50) (0,ufoAlkuNopeus) ufoElamat) -- The Ufo (added)
 
 
 simulateWorld :: Float -> (AsteroidWorld -> AsteroidWorld)
@@ -70,13 +95,33 @@ simulateWorld _        GameOver   = GameOver
 -- Exploding
 --   Tässä ufo "räjähtää" ja jää ruudulle paikalleen punaisena ympyränä. Tästä tilasta
 --    ei enää päästä mihinkään muuhun
+-- 
+-- collisions - lisätty
+-- Jos kivi törmää ufoon sen nopeus kaksinkertaistuu
+-- Kun luoti osuu laivaan se saa lisää elinaikaa.
+-- nyt on törmäykset : 
+-- ufo - kivi, kivi - laiva, laiva -  ufo, ufo - bullet,
+-- bullet - laiva, bullet-kivi
+-- eli pitäisi olla kaikki törmäykset
 simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo added here
-  | any (collidesWith shipPos) rocks = GameOver
-  | otherwise = Play (concatMap updateRock rocks) 
+  | any (collides (Ship shipPos shipV)) rocks  = GameOver 
+  | collides (Ship shipPos shipV) ufo1  = GameOver 
+  | otherwise = Play (concatMap (updateRock ufo1) rocks) 
                               (Ship newShipPos shipV)
                               (concat (map updateBullet bullets))
                               (updateUfo ufo1) -- Ufo added here
   where
+      -- Nämä funktiot luotu Spatial tyyppiluokan avulla:
+      collides :: (Spatial a, Spatial b) => a -> b -> Bool
+      collides x y =  
+        magV ( location x .- location y ) < size y
+
+      collidesWithB :: Spatial a => a -> Bool
+      collidesWithB r 
+       = any (\b -> collides b r) bullets 
+      
+      -- Nämä siis on korvattu
+      {-
       collidesWith :: PointInSpace -> Rock -> Bool
       collidesWith p (Rock rp s _)  = 
         magV (rp .- p) < s
@@ -100,23 +145,27 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
       collidesWithBulletUfo :: Ufo -> Bool
       collidesWithBulletUfo r 
        = any (\(Bullet bp _ _) -> collidesWithUfo bp r) bullets
-     
-      updateRock :: Rock -> [Rock]
-      updateRock r@(Rock p s v) 
-       | collidesWithBullet r && s < 7 
+     -}
+      updateRock :: Ufo -> Rock -> [Rock]
+      updateRock u r@(Rock p s v)
+       | collidesWithB r && s < 7 
             = []
-       | collidesWithBullet r && s > 7 
+       | collidesWithB r && s > 7 
             = splitRock r
+       | (collides r u)  = [Rock (restoreToScreen (p .+ timeStep .* (2*v))) s (2*v)]
        | otherwise                     
             = [Rock (restoreToScreen (p .+ timeStep .* v)) s v]
- 
+      
       updateBullet :: Bullet -> [Bullet] 
       updateBullet (Bullet p v a) 
         | a > 5                      
              = []
-        | any (collidesWith p) rocks 
+        | any (collides (Bullet p v a)) rocks 
              = [] 
-        | collidesWithUfo p ufo1 = []     
+        | collides (Bullet p v a) ufo1 = [] 
+        | collides (Bullet p v a) (Ship shipPos shipV) = 
+                    [Bullet (restoreToScreen (p .+ timeStep .* v)) v 
+                       (a - timeStep)]      
         | otherwise                  
              = [Bullet (restoreToScreen (p .+ timeStep .* v)) v 
                        (a + timeStep)] 
@@ -125,13 +174,13 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
       updateUfo :: Ufo -> Ufo 
       updateUfo ufosum = case ufosum of   
         Hunting pos v t 
-            | collidesWithBulletUfo ufosum ->Fleeing (restoreToScreen (pos .+ timeStep .* v)) 
+            | collidesWithB ufosum ->Fleeing (restoreToScreen (pos .+ timeStep .* v)) 
              (magV(shipV) .* norm(pos .- shipPos)) (t-1) --Tässä ufo lähtee karkuun kun saa osuman
             | t < 1 ->Exploding pos 
             | otherwise  -> Hunting (restoreToScreen (pos .+ timeStep .* v))
              (magV(shipV).*norm(shipPos .- pos)) (t)
         Fleeing pos v t
-            |collidesWithBulletUfo ufosum ->Waiting (restoreToScreen (pos .+ timeStep .* v)) 
+            |collidesWithB ufosum ->Waiting (restoreToScreen (pos .+ timeStep .* v)) 
               (t-1) 0
             | t < 1 ->Exploding pos
             | t < 3 -> Hunting (restoreToScreen (pos .+ timeStep .* v)) (magV(shipV).*norm(shipPos .- pos)) (t)
@@ -139,7 +188,7 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
              v (t)
         Waiting pos t a
             | a > 100 -> Hunting (restoreToScreen (pos)) (magV(shipV).*norm(shipPos .- pos)) (t)
-            | collidesWithBulletUfo ufosum ->Fleeing (restoreToScreen (pos)) 
+            | collidesWithB ufosum ->Fleeing (restoreToScreen (pos)) 
              (magV(shipV).*norm(pos .- shipPos)) (t-1)
             | t < 1 ->Exploding pos 
             | otherwise-> Waiting (restoreToScreen (pos) )
