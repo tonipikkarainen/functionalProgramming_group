@@ -110,7 +110,7 @@ We know that function with type forall a. a -> a is always an identity function.
 Mark these either as True or False:
 (\ f xs -> ...) :: forall a. (a->a) -> [a] -> [a] F 
 
-(\xs -> \x -> ...) :: forall a. [a] -> (a->a) puoliksi F 
+(\xs -> \x -> ...) :: forall a. [a] -> (a->a)  F 
 
 (\xs -> \y -> ...) :: forall a b. [b] -> (a->a) T
 

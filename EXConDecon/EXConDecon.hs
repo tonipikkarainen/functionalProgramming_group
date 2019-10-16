@@ -6,7 +6,7 @@ f1 :: (Int,Char,Bool) -> Char
 f1 (a,b,c) = b 
 
 f2 :: (a,b,c) ->  b 
-f2 (a,b,c) = b
+f2 (a,b,c) =   b
 
 f3 :: (a,(b,c,d),e) -> c
 f3 (a,(b,c,d),e) = c 

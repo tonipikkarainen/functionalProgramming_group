@@ -78,12 +78,28 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
                               (updateUfo ufo1) -- Ufo added here
   where
       collidesWith :: PointInSpace -> Rock -> Bool
-      collidesWith p (Rock rp s _) 
-       = magV (rp .- p) < s 
+      collidesWith p (Rock rp s _)  = 
+        magV (rp .- p) < s
 
+      
       collidesWithBullet :: Rock -> Bool
       collidesWithBullet r 
        = any (\(Bullet bp _ _) -> collidesWith bp r) bullets 
+
+
+      -- Tämän toteutus Either Rock Ufo parametrilla??
+      --add
+      collidesWithUfo :: PointInSpace -> Ufo -> Bool
+      collidesWithUfo p ufo
+       = case ufo of 
+        Hunting x _ _ -> magV (x .- p) < ufoSize
+        Fleeing  x _ _ -> magV (x .- p) < ufoSize
+        Waiting  x _ _ -> magV (x .- p) < ufoSize
+        Exploding _ -> False
+      --add
+      collidesWithBulletUfo :: Ufo -> Bool
+      collidesWithBulletUfo r 
+       = any (\(Bullet bp _ _) -> collidesWithUfo bp r) bullets
      
       updateRock :: Rock -> [Rock]
       updateRock r@(Rock p s v) 
@@ -104,18 +120,7 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
         | otherwise                  
              = [Bullet (restoreToScreen (p .+ timeStep .* v)) v 
                        (a + timeStep)] 
-      --add
-      collidesWithUfo :: PointInSpace -> Ufo -> Bool
-      collidesWithUfo p ufo
-       = case ufo of 
-        Hunting x _ _ -> magV (x .- p) < ufoSize
-        Fleeing  x _ _ -> magV (x .- p) < ufoSize
-        Waiting  x _ _ -> magV (x .- p) < ufoSize
-        Exploding _ -> False
-      --add
-      collidesWithBulletUfo :: Ufo -> Bool
-      collidesWithBulletUfo r 
-       = any (\(Bullet bp _ _) -> collidesWithUfo bp r) bullets 
+      
       --add
       updateUfo :: Ufo -> Ufo 
       updateUfo ufosum = case ufosum of   
@@ -187,7 +192,7 @@ handleEvents :: Event -> AsteroidWorld -> AsteroidWorld
 handleEvents (EventKey (SpecialKey KeySpace) Down _ _) GameOver = initialWorld 
                         
 
--- SOMETHING ADDED!
+
 handleEvents (EventKey (MouseButton LeftButton) Down _ clickPos)
              (Play rocks (Ship shipPos shipVel) bullets ufo)
              = Play rocks (Ship shipPos newVel) 
