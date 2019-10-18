@@ -7,7 +7,8 @@ main = undefined
 class JSON a where
     toJSONString :: a -> String
 
--- Ei selviä kaikesta, mutta selviää tästä tapauksesta, mikä vaadittiin:
+-- Ei selviä kaikesta (esim. sisäkkäiset listat), mutta selviää tästä 
+-- tapauksesta, mikä vaadittiin:
 -- toJSONString ([1,2,3],[(pack "cat",(6,'a')),(pack "dog",(7,'x'))]) ==
 -- "[[1,2,3],[[cat,[6,'a']],[dog,[7,'x']]]]" 
 
