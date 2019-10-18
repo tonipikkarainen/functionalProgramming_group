@@ -1,0 +1,39 @@
+map _ []     = []             -- map 1
+map f (x:xs) = f x : map f xs -- map 2 
+
+Proof. We prove this by induction over the structure of the list. First of all, we show that the theorem holds for an empty list and two arbitrary functions f and g:
+
+map (f . g) == (map f . map g)
+
+map (f . g) []
+== {- Map 1 -}
+[]
+== {- Inverse of Map 1 -}
+map f []
+== {- Inverse of Map 1 : [] = map g []  -}
+map f (map g [])
+== {- Inverse of definition of (.) -}
+(map f . map g) []
+
+Pätee tyhjälle listalle.
+
+Secondly, we show that if the theorem holds for a list of a particular length, it must also hold for a list that is one element longer, and thus, by the induction principle, for all lists. This follows from showing that map (f . g) xs == (map f . map g) xs implies that map (f . g) (x:xs) == (map f . map g) (x:xs)
+
+This can be proven by a simple calculation:
+
+assumption: map (f . g) xs == (map f . map g) xs
+claim: map (f . g) (x:xs) == (map f . map g) (x:xs)
+
+map (f . g) (x:xs)
+== {- Map 2 -}
+(f . g) x : map (f . g) xs
+== {- The inductive assumption -}
+(f . g) x : (map f . map g) xs
+== {- definition of (.) -}
+f (g  x) : (map f (map g xs))
+== {- Map 2 -}
+map f (g x:map g xs)
+== {- Map 2 -}
+map f (map g (x:xs))
+== {- Definition of (.)-}
+(map f . map g) (x:xs)
