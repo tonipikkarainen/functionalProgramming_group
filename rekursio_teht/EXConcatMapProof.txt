@@ -62,25 +62,3 @@ Claim: map f (x:xs) ++ map f ys == map f ((x:xs)++ys)
  map f ys
  =={- (++).1 -}
  map f ([]++ys)
-
-Changing ys:
-
-Assumption: map f xs ++ map f ys == map f (xs++ys)
-Claim: map f xs ++ map f (y:ys) == map f (xs++(y:ys))
-
- map f xs ++ map f (y:ys) 
- == {- Map.2 -}
- map f xs ++ f y map ys
-
-
-
- Here came some problems.. how to continue
-
- You had ended up to this point:
- map f (xs ++ y) : map f ys 
-
- but we couldn't solve how to continue from this in the demo session.  
-
-
- 
-
