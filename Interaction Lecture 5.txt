@@ -1,0 +1,72 @@
+1. 
+You can use <> in the implementation of f :: Monoid a => [a]->a
+- True
+You can use mempty in the implementation of f :: Semigroup a => [a]->a
+- False
+Everything that is a Monoid is also a Semigroup
+- True
+Everything that is a Semigroup is also a Monoid
+- False
+
+2.
+instance HasCapacity Int where ...
+- False (Int is not a functor)
+instance HasCapacity Either where ...
+- False (Either needs two arguments but f is only given one)
+instance HasCapacity (Either String) where ...
+- True
+instance HasCapacity (Either String Int) where ...
+- 
+
+3.
+blub [[[[(),()],[]]]]
+- True
+blub [(),()]
+- True
+blub [1,2,3]
+- True
+blub (Just [1,2,3])
+- True (all alternatives are nested combinations of the types that have an instance of the class)
+
+4.
+Int, a<>b=a+b, mempty=0
+- True
+Int, a<>b=a*b, mempty=0
+- False (for the product monoid, mempty should equal 1)
+forall a. a -> a, f<>g=\x -> f (g x), mempty=\x->x
+- 
+forall a. Monoid a=> (a,a,a), (x,y,z)<>(h,j,k)=(x<>h,y<>j,z<>k), mempty=(mempty,mempty,mempty)
+- True (a triplet of monoids is a monoid)
+forall a. Monoid a=> (a,a,a), (x,y,z)<>(h,j,k)=(x<>k,y<>j,z<>h), mempty=(mempty,mempty,mempty)
+- True (technically, this is a monoid but it does not really make sense)
+
+5. 
+Int
+- False
+data Vector = Vec Int Int Int
+- False (fmap with f :: Int -> String would give a vector with elements that are strings and 
+  thus the result would not be a Vec Int Int Int)
+data Vector a = Vec a a a
+- True
+data Vector a = Vec [a]
+- True
+
+6.
+fmap f (Counter a n) = Counter (f a) 0
+- False (does not satisfy fmap id == id)
+fmap f (Counter a n) = Counter (f a) (n+1)
+- False (does not satisfy fmap id == id)
+fmap f (Counter a n) = Counter a (f n)
+- False (f :: a -> b so f can not be applied to an Int)
+fmap f (Counter a n) = Counter (f a) n
+- True
+
+7. -- fmap :: (a -> b) -> f a -> f b
+data AllBoolFuns = A (Bool -> Bool)
+- 
+data ConstBool a = C Bool
+- 
+data Pred a = P (a -> Bool)
+- 
+data Select a = S (Bool -> a)
+- 

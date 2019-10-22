@@ -1,0 +1,46 @@
+a. There is one do block which covers the whole code and another do block 
+   inside the definition of loop :
+    do 
+      let try = (a + b) `div` 2
+      putStrLn ("Is it more than "
+            ++ show try
+            ++ " ? (True/False)")
+      isGreater <- getLine 
+      if (read isGreater)
+            then loop (try + 1) b
+            else loop a       try
+   
+
+b & c.
+    putStr   "Pick a natural number less than 10,"  -- Plain action
+    putStrLn "and I'll try to guess what it is!"    -- Plain action  
+
+    let loop :: Int -> Int -> IO ()                 -- The whole definition of loop (12 lines) 
+        loop a b                                    -- is a pure binding (includes other statements)
+         | a==b      = putStrLn ("The number is "++show a) -- Plain action
+         | otherwise = do 
+                        let try = (a + b) `div` 2   -- Pure binding
+                        putStrLn ("Is it more than "-- Plain action
+                                 ++ show try
+                                 ++ " ? (True/False)")
+                        isGreater <- getLine        -- Bind statement
+                        if (read isGreater)         -- Plain action
+                             then loop (try + 1) b  -- Plain action
+                             else loop a       try  -- Plain action
+    loop 1 10                                       -- Plain action
+    putStrLn "Thanks for playing"                   -- Plain action
+    
+d.  putStr :: String -> IO ()
+    putStrLn :: String -> IO ()
+    "Pick a natural number less than 10,", "and I'll try to guess what it is!", 
+    "The number is "++show a,  "Is it more than " ++ show try ++ " ? (True/False)" and
+    "Thanks for playing" are all Strings.
+    loop :: Int -> Int -> IO ()
+    a :: Int, b :: Int
+    try :: Int
+    isGreater :: String
+    getLine :: IO String
+    read :: Read a => String -> action
+    read isGreater :: Bool
+
+The types match the rules for typing do blocks indeed.
