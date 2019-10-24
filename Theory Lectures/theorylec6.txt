@@ -1,0 +1,75 @@
+Interaction leccture 6
+
+Q1
+class HasCapacity f where
+capacity :: f a -> Int
+example :: f a -> Maybe a
+-- Laws: ∀x. capacity > 0 ==> isJust (example)
+
+which of the following instance declarations are fine?
+Mark these either as True or False:
+   instance HasCapacity Int where ...         F
+   instance HasCapacity Either where ...      F
+   instance HasCapacity (Either String) where ...  T
+   instance HasCapacity (Either String Int) where ... F
+
+Q3
+Functors have laws. Which of the following would be law-abiding fmaps for
+data Counter a = Counter a Int?
+Mark these either as True or False:
+    fmap f (Counter a n) = Counter (f a) 0      F
+    fmap f (Counter a n) = Counter (f a) (n+1)  F
+    fmap f (Counter a n) = Counter a (f n)      T
+    fmap f (Counter a n) = Counter (f a) n      T
+
+Q4
+Which of these are functions?
+Mark these either as True or False:
+    Remove consecutive duplicates from a list   T
+    Read contents of a file                     F
+    Sort a list                                 T
+    Get the current date                        F
+    Fetch a web page as a String                F
+
+Funktion tulos samalla syötteellä on aina sama. Esim päivämäärä
+on joka päivä eri.
+
+Q5
+What does this print:
+main =
+ print (length [putStr "kissa ",putStr "istuu ",putStr "aidalla"])
+
+Mark these either as True or False:
+    3 kissa istuu aidalla    F
+    kissa istuu aidalla 3    F
+    kissa istuu aidalla      F
+    3                        T
+    aidallaistuu kissa       F
+
+Tulostaa annetun listan pituuden, joka on 3.
+
+Q7
+Which of these can be implemented? (without resorting to unsafe behaviour)
+Mark these either as True or False:
+    forall a. a -> IO a
+    forall a. IO a -> a
+    forall a b. IO (a->b,a) -> b
+    forall a b. IO (a->b,a) -> IO b
+    forall a b. IO a -> IO (a->b) -> IO b
+
+Q6
+Which of these is a program that reads a line from the user and prints it back in reverse?
+
+Mark these either as True or False:
+    main = print (reverse getLine)
+    main = print (fmap reverse getLine)
+    main = reverse getLine >>= print
+    main = fmap reverse getLine >>= print
+
+Q8
+Picture has two functions, labeled A and B.
+The function f is given to them as an argument.
+
+Mark these either as True or False:
+    A traverses the list atleast once, regardless of f  T
+    B traverses the list atleast once, regardless of f  F

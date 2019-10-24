@@ -1,0 +1,7 @@
+EXConcatMapProof
+
+a)
+concat (map f x:map (map f) xs) == map f x ++ concat (map (map f) xs)
+
+b)
+map f x ++ map f y == map f (x++y)

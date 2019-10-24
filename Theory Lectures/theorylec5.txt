@@ -6,7 +6,7 @@ class Semigroup a where (<>) :: a -> a -> a
 class Semigroup a => Monoid a where mempty :: a
 
 Mark these either as True or False:
-   You can use <> in the implementation of f :: Monoid a => [a]->a         F
+   You can use <> in the implementation of f :: Monoid a => [a]->a         T
     You can use mempty in the implementation off :: Semigroup a => [a]->a` F
     Everything that is a Monoid is also a Semigroup   T
     Everything that is a Semigroup is also a Monoid   F
@@ -22,8 +22,11 @@ which of the following instance declarations are fine?
 Mark these either as True or False:
    instance HasCapacity Int where ...       F
    instance HasCapacity Either where ...    F
-   instance HasCapacity (Either String) where ...
-   instance HasCapacity (Either String Int) where ...
+   instance HasCapacity (Either String) where ...      T
+   instance HasCapacity (Either String Int) where ...  F
+
+Ensimmäisessä on pelkkä Int kun pitäisi olla joku funktio. Either ei
+myöskään voi olla yksinään.
 
 Q3
 class Blub a where blub :: a -> String
@@ -48,6 +51,13 @@ Mark these either as True or False:
     forall a. Monoid a=> (a,a,a), (x,y,z)<>(h,j,k)=(x<>h,y<>j,z<>k), mempty=(mempty,mempty,mempty)
     forall a. Monoid a=> (a,a,a), (x,y,z)<>(h,j,k)=(x<>k,y<>j,z<>h), mempty=(mempty,mempty,mempty)
 
+T
+F
+T
+T
+F
+
+
 Q5
 Which of the following can be given a Functor instance?
 
@@ -55,15 +65,19 @@ Mark these either as True or False:
     Int                             F
     data Vector = Vec Int Int Int   F
     data Vector a = Vec a a a       T
-    data Vector a = Vec [a]         F
+    data Vector a = Vec [a]         T
+
+Funktorissa kyse on siitä, että funktion sisällä olevaa tyyppiä muutetaan,
+eikä sitä voi kahdessa ensimmäisessä tehdä.
 
 Q6
-Functors have laws. Which of the following would be law-abiding fmaps for data Counter a = Counter a Int?
+Functors have laws. Which of the following would be law-abiding fmaps for
+data Counter a = Counter a Int?
 
 Mark these either as True or False:
     fmap f (Counter a n) = Counter (f a) 0       F
     fmap f (Counter a n) = Counter (f a) (n+1)   F
-    fmap f (Counter a n) = Counter a (f n)       F
+    fmap f (Counter a n) = Counter a (f n)       T
     fmap f (Counter a n) = Counter (f a) n       T
 
 
@@ -74,8 +88,8 @@ Which of the following can be given a Functor instance? (This is a hard question
 Mark these either as True or False:
     data AllBoolFuns = A (Bool -> Bool)   F
     data ConstBool a = C Bool             F
-    data Pred a = P (a -> Bool)
-    data Select a = S (Bool -> a)
+    data Pred a = P (a -> Bool)           F
+    data Select a = S (Bool -> a)         T
 
 Kaksi ekaa vaikuttavat siltä, ettei siinä voi tyyppi muuttua.
-Kahdesta vikasta en ole varma. 
+Kahdesta vikasta en ole varma.
