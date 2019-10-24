@@ -24,11 +24,19 @@ data EventRecord
     deriving (Eq,Show)
 
 exampleEvents 
-  = [Event "A" PowerOff
-    ,Event "B" PowerOff
+  = [Event "A" PowerOn
     ,Event "B" PowerOn
-    ,Event "A" PowerOff
     ,Event "B" PowerOff
+    ,Event "A" PowerOff
+    ,Event "B" PowerOn
+    ,Event "C" PowerOn
+    ,Event "B" PowerOff
+    ,Event "A" PowerOn
+    ,Event "B" PowerOn
+    ,Event "B" PowerOff
+    ,Event "A" PowerOff
+    ,Event "B" PowerOn
+    ,Event "C" PowerOn
     ,Event "C" PowerOff
     ]
    
@@ -54,8 +62,36 @@ firstOn = foldMap f
     
 -- CyclesMonoid --
 
+data EVTlist a = EVTlist a [a] a | Empty deriving (Eq, Show)
+ 
+instance Eq a => Semigroup (EVTlist a) where
+    EVTlist x1 xs xLast <> EVTlist y1 ys yLast = 
+        if xLast == y1 then EVTlist x1 (xs ++ tail ys) yLast
+                       else EVTlist x1 (xs ++ ys) yLast
+-- x1 and xLast are the first and last element of xs 
+-- i.e. head xs = x1 and last xs = xLast
+         
+    
+instance Eq a => Monoid (EVTlist a) where
+    mempty = Empty
+
+
 cycles :: [EventRecord] -> MonMap String (Sum Int)
-cycles = undefined
+cycles = fmap g . foldMap f 
+    where
+        f :: EventRecord -> MonMap String (EVTlist EVT)
+        f = \(Event id state) -> mon id (EVTlist state [state] state)
+        g :: EVTlist EVT -> Sum Int
+            -- Input is of form 'EVTlist Off [Off, On, Off, On, Off] Off'
+            -- or               'EVTlist Off [Off, On, Off, On, Off, On] On'
+            -- or               'EVTlist On [On, Off, On, Off, On] On'
+            -- or               'EVTlist On [On, Off, On, Off, On, Off] Off'
+        g = \(EVTlist x1 xs xLast) -> case (x1, xLast) of
+                                        (PowerOff, PowerOff)   -> Sum ((length xs) `div` 2)
+                                        (PowerOff, PowerOn)  -> Sum ((length xs) `div` 2 - 1)
+                                        (PowerOn, PowerOn) -> Sum ((length xs) `div` 2)
+                                        (PowerOn, PowerOff)  -> Sum ((length xs) `div` 2)
+        
 
 main :: IO ()
 main = do

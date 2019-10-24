@@ -29,12 +29,12 @@ version :: Version
 version = Version [0,1,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
-bindir     = "C:\\Users\\annel\\Haskell_projects\\Log-Monoid\\.stack-work\\install\\d8956f48\\bin"
-libdir     = "C:\\Users\\annel\\Haskell_projects\\Log-Monoid\\.stack-work\\install\\d8956f48\\lib\\x86_64-windows-ghc-8.6.5\\Log-Monoid-0.1.0.0-9qeAQ322NA94x4yCTaQsXx-Log-Monoid"
-dynlibdir  = "C:\\Users\\annel\\Haskell_projects\\Log-Monoid\\.stack-work\\install\\d8956f48\\lib\\x86_64-windows-ghc-8.6.5"
-datadir    = "C:\\Users\\annel\\Haskell_projects\\Log-Monoid\\.stack-work\\install\\d8956f48\\share\\x86_64-windows-ghc-8.6.5\\Log-Monoid-0.1.0.0"
-libexecdir = "C:\\Users\\annel\\Haskell_projects\\Log-Monoid\\.stack-work\\install\\d8956f48\\libexec\\x86_64-windows-ghc-8.6.5\\Log-Monoid-0.1.0.0"
-sysconfdir = "C:\\Users\\annel\\Haskell_projects\\Log-Monoid\\.stack-work\\install\\d8956f48\\etc"
+bindir     = "C:\\Users\\annel\\Haskell_projects\\functionalProgramming_group\\Log-Monoid\\.stack-work\\install\\d8956f48\\bin"
+libdir     = "C:\\Users\\annel\\Haskell_projects\\functionalProgramming_group\\Log-Monoid\\.stack-work\\install\\d8956f48\\lib\\x86_64-windows-ghc-8.6.5\\Log-Monoid-0.1.0.0-9qeAQ322NA94x4yCTaQsXx-Log-Monoid"
+dynlibdir  = "C:\\Users\\annel\\Haskell_projects\\functionalProgramming_group\\Log-Monoid\\.stack-work\\install\\d8956f48\\lib\\x86_64-windows-ghc-8.6.5"
+datadir    = "C:\\Users\\annel\\Haskell_projects\\functionalProgramming_group\\Log-Monoid\\.stack-work\\install\\d8956f48\\share\\x86_64-windows-ghc-8.6.5\\Log-Monoid-0.1.0.0"
+libexecdir = "C:\\Users\\annel\\Haskell_projects\\functionalProgramming_group\\Log-Monoid\\.stack-work\\install\\d8956f48\\libexec\\x86_64-windows-ghc-8.6.5\\Log-Monoid-0.1.0.0"
+sysconfdir = "C:\\Users\\annel\\Haskell_projects\\functionalProgramming_group\\Log-Monoid\\.stack-work\\install\\d8956f48\\etc"
 
 getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
 getBinDir = catchIO (getEnv "Log_Monoid_bindir") (\_ -> return bindir)
