@@ -105,14 +105,20 @@ simulateWorld _        GameOver   = GameOver
 --    ei enää päästä mihinkään muuhun
 -- 
 -- collisions - lisätty
--- Jos kivi törmää ufoon sen nopeus kaksinkertaistuu
+-- Jos kivi törmää ufoon sen nopeus puolitoista kertaistuu
 -- Kun luoti osuu laivaan se saa lisää elinaikaa.
 -- nyt on törmäykset : 
 -- ufo - kivi, kivi - laiva, laiva -  ufo, ufo - bullet,
 -- bullet - laiva, bullet-kivi
 -- eli pitäisi olla kaikki törmäykset
+-- 
+-- nyt ufo ampuu ainaa luodin laivan tulevaisuuden paikkaan
+-- jos luoti osuu kiveen ja ufo on hunting tilassa
+-- luodit eivät vielä kuitenkaan satuta laivaa
+-- mutta tätä ei ollut myöskään vaatimuksissa
 simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo added here
   | any (collides (Ship shipPos shipV)) rocks  = GameOver 
+  -- | any (collides (Ship shipPos shipV)) bullets  = GameOver
   | collides (Ship shipPos shipV) ufo1  = GameOver 
   | otherwise = Play (concatMap (updateRock ufo1) rocks) 
                               (Ship newShipPos shipV)
@@ -136,16 +142,29 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
             = []
        | collidesWithB r && s > 7 
             = splitRock r
-       | (collides r u)  = [Rock (restoreToScreen (p .+ timeStep .* (2*v))) s (2*v)]
+       | (collides r u)  = [Rock (restoreToScreen (p .+ timeStep .* (1.5.*v))) s (1.5.*v)]
        | otherwise                     
             = [Rock (restoreToScreen (p .+ timeStep .* v)) s v]
       
+      -- jos luoti osuu kiveen ufo ampuu
+      -- laivan tulevaisuuden paikkaan
       updateBullet :: Bullet -> [Bullet] 
       updateBullet (Bullet p v a) 
-        | a > 5                      
-             = []
+        | a > 0.5 = []                      
         | any (collides (Bullet p v a)) rocks 
-             = [] 
+            = case ufo1 of
+              Hunting pos v t -> 
+                let -- 
+                  maailma = (tilat ufo1) !! 1 -- otetaan tulevaisuuden tila
+                  (Play _ (Ship laivaPos _)  _ _ ) = maailma -- otetaan maailmasta laivan paikka
+                  ufonVierus = pos .+ (40.*norm ( laivaPos .- pos )) -- ei ammuta ihan ufon kohdalta
+                  v_suunta = norm ( laivaPos .- ufonVierus ) -- lasketaan suunta
+                  v_suuruus = (magV (ufonVierus .- laivaPos)) / (10*timeStep) -- lasketaan suuruus 
+                  newBullet = Bullet ufonVierus -- luodaan uusi luoti
+                        (v_suuruus .* v_suunta) 
+                        0
+                in [newBullet]
+              otherwise -> []
         | collides (Bullet p v a) ufo1 = [] 
         | collides (Bullet p v a) (Ship shipPos shipV) = 
                     [Bullet (restoreToScreen (p .+ timeStep .* v)) v 
@@ -199,6 +218,14 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
       tarkistaMaailma GameOver = False
       tarkistaMaailma (Play _ _ bul uf) =
         collidesWithB uf
+
+      -- kuinka luodaan uusi bullet, joka menee ufolta kohti
+      -- laivaa?
+      -- otetaan tiloista joku tulevaisuuden tila (2?) ja tästä 
+      -- tilasta laivan paikka ja ufon paikka -> luodaan
+      -- luoti joka olisi laivan paikassa kyseisten timesteppien päästä
+      -- tämä voidaan laskea suht helposti liikelaiella.
+      -- kuinka luodaan uusi luoti?????
     
 
       newShipPos :: PointInSpace
@@ -254,7 +281,7 @@ handleEvents (EventKey (MouseButton LeftButton) Down _ clickPos)
                           (newBullet : bullets)
                           ufo
  where 
-     newBullet = Bullet shipPos 
+     newBullet = Bullet (shipPos .+ (20.* norm (clickPos .- shipPos))) 
                         (negate 150 .* norm (shipPos .- clickPos)) 
                         0
      newVel    = shipVel .+ (50 .* norm (shipPos .- clickPos))
