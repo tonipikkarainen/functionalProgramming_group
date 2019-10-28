@@ -1,3 +1,5 @@
+{-# OPTIONS -Wall #-}
+
 module Main where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
@@ -62,7 +64,8 @@ instance Spatial Bullet where
 
 
 -- SOMETHING ADDED!
-ufoXpaikka = -50
+tarkkailtavaTila = 3 -- Tähän tulevaisuuden tilaan ufoa ammutaan
+ufoXpaikka = -100
 ufoSize = 30
 ufoAlkuNopeus = 1
 ufoElamat = 4
@@ -76,13 +79,13 @@ initialWorld = Play
                    ] -- The default rocks
                    (Ship (0,0) (0,5)) -- The initial ship
                    [] -- The initial bullets (none)
-                   (Hunting (ufoXpaikka,-50) (0,ufoAlkuNopeus) ufoElamat) -- The Ufo (added)
+                   (Hunting (ufoXpaikka,-100) (0,ufoAlkuNopeus) ufoElamat) -- The Ufo (added)
                    --[] -- ei ufo bulletteja alussa
 
 
-simulateWorld :: Float -> (AsteroidWorld -> AsteroidWorld)
+simulateWorld :: Bool -> (Float -> (AsteroidWorld -> AsteroidWorld))
 
-simulateWorld _        GameOver   = GameOver  
+simulateWorld _   _    GameOver   = GameOver  
 
 -- Ufolla on neljä tilaa. Ufo siirtyy updateUfo funktion avulla tilasta toiseen tiettyjen 
 -- sääntöjen mukaisesti.
@@ -116,9 +119,11 @@ simulateWorld _        GameOver   = GameOver
 -- jos luoti osuu kiveen ja ufo on hunting tilassa
 -- luodit eivät vielä kuitenkaan satuta laivaa
 -- mutta tätä ei ollut myöskään vaatimuksissa
-simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo added here
+
+-- TODO: tee uusi simulateworld,jossa ei ole ufoa mukana!!!
+simulateWorld tulevaisuus timeStep (Play rocks (Ship shipPos shipV) bullets ufo1)  -- Ufo added here
   | any (collides (Ship shipPos shipV)) rocks  = GameOver 
-  -- | any (collides (Ship shipPos shipV)) bullets  = GameOver
+  | any (collides (Ship shipPos shipV)) bullets  = GameOver
   | collides (Ship shipPos shipV) ufo1  = GameOver 
   | otherwise = Play (concatMap (updateRock ufo1) rocks) 
                               (Ship newShipPos shipV)
@@ -150,21 +155,23 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
       -- laivan tulevaisuuden paikkaan
       updateBullet :: Bullet -> [Bullet] 
       updateBullet (Bullet p v a) 
-        | a > 0.5 = []                      
-        | any (collides (Bullet p v a)) rocks 
+        | a > 2 = []
+        | tulevaisuus && (any (collides (Bullet p v a)) rocks) 
             = case ufo1 of
               Hunting pos v t -> 
-                let -- 
-                  maailma = (tilat ufo1) !! 1 -- otetaan tulevaisuuden tila
-                  (Play _ (Ship laivaPos _)  _ _ ) = maailma -- otetaan maailmasta laivan paikka
-                  ufonVierus = pos .+ (40.*norm ( laivaPos .- pos )) -- ei ammuta ihan ufon kohdalta
-                  v_suunta = norm ( laivaPos .- ufonVierus ) -- lasketaan suunta
-                  v_suuruus = (magV (ufonVierus .- laivaPos)) / (10*timeStep) -- lasketaan suuruus 
-                  newBullet = Bullet ufonVierus -- luodaan uusi luoti
-                        (v_suuruus .* v_suunta) 
+                if tilat !! tarkkailtavaTila /= GameOver then
+                  let -- 
+                    maailma = tilat !! tarkkailtavaTila
+                    (Play _ (Ship laivaPos _)  _ _ ) = maailma -- otetaan maailmasta laivan paikka
+                    ufonVierus = pos .+ (40.*norm ( laivaPos .- pos )) -- ei ammuta ihan ufon kohdalta
+                    v_suunta = norm ( laivaPos .- ufonVierus ) -- lasketaan suunta
+                    v_suuruus = (magV (ufonVierus .- laivaPos)) / ((fromIntegral tarkkailtavaTila)*5*timeStep) -- lasketaan suuruus 
+                    newBullet = Bullet ufonVierus -- luodaan uusi luoti
+                      (v_suuruus .* v_suunta) 
                         0
-                in [newBullet]
-              otherwise -> []
+                  in [newBullet]
+                else []
+              otherwise -> []                    
         | collides (Bullet p v a) ufo1 = [] 
         | collides (Bullet p v a) (Ship shipPos shipV) = 
                     [Bullet (restoreToScreen (p .+ timeStep .* v)) v 
@@ -177,16 +184,15 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
       updateUfo :: Ufo -> Ufo 
       updateUfo ufosum = case ufosum of   
         Hunting pos v t 
+            | tulevaisuus && tarkistaTulevaisuus (tilat) ->  Hunting 
+              (restoreToScreen (pos .+ (-100,0) .+ timeStep .* v)) ((-1000,0)) (t) 
             | collidesWithB ufosum ->Fleeing (restoreToScreen (pos .+ timeStep .* v)) 
               (magV(shipV) .* norm(pos .- shipPos)) (t-1) 
             -- Tässä hunting-tilassa ufo väistää tulevia ammuksia, mikäli on
             -- saamassa osuman
-            | tarkistaTulevaisuus (tilat ufosum) -> Hunting 
-            (restoreToScreen (pos .+ (-100,0) .+ timeStep .* v))
-              ((-1000,0)) (t) 
             | t < 1 ->Exploding pos 
             | otherwise  -> Hunting (restoreToScreen (pos .+ timeStep .* v))
-             (magV(shipV).*norm(shipPos .- pos)) (t)
+             (0.8*magV(shipV).*norm(shipPos .- pos)) (t)
         Fleeing pos v t
             |collidesWithB ufosum ->Waiting (restoreToScreen (pos .+ timeStep .* v)) 
               (t-1) 0
@@ -207,17 +213,42 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo1) -- Ufo add
           -- Idea toimii näin, mutta ei pysty ottaa enempää kuin
           -- 2 tulevaa maailman tilaa.. miten voisi parantaa?
       
-      tilat ufosum = take 2 (iterate (simulateWorld (10*timeStep))
+      tilat = take 10 (iterate (simulateWorld False (5*timeStep))
               (Play rocks (Ship shipPos shipV) 
-              (concat (map updateBullet bullets)) ufo1))
+              bullets ufo1))
+      -- :: [AsteroidWorld] -> [(Int, AsteroidWorld)]
+      --luoTuple :: [AsteroidWorld] -> [(Int,AsteroidWorld)]
+      --luoTuple [] = []
+      --luoTuple (x:xs) = 
+      --    let 
+      --        takaperin = reverse (x:xs)
+      --        (y:ys) = takaperin 
+      --  in 
+      --        ((length takaperin - 1),y):(luoTuple (reverse ys) )
+
       -- tarkistaTulevaisuus :: [AsteroidWorld] -> Bool
+      -- tarkistaTulevaisuus xs =
+      -- any tarkistaMaailma xs 
+      -- miten saadaan tieto mones tarkasteltava tila kyseessä?
       tarkistaTulevaisuus xs =
-        any tarkistaMaailma xs 
+        any tarkistaMaailma xs
+
+      --tarkistaMaailma :: (Int,AsteroidWorld) -> Bool
+      --tarkistaMaailma (x,(Playsim _ _ bul)) =  case ufo1 of
+      --  Hunting pos v t -> 
+      --      let
+      --        kerroin = fromIntegral x * timeStep 
+      --        ufo_uusi = Hunting (pos .+ kerroin .* v) v t
+      --      in 
+      --        any (collides ufo_uusi) bul
+      --  otherwise -> False
+
+
        
             -- tarkistaMaailma :: AsteroidWorld -> Bool
-      tarkistaMaailma GameOver = False
       tarkistaMaailma (Play _ _ bul uf) =
         collidesWithB uf
+      tarkistaMaailma _ = False
 
       -- kuinka luodaan uusi bullet, joka menee ufolta kohti
       -- laivaa?
@@ -323,7 +354,23 @@ main = play
          initialWorld 
          drawWorld 
          handleEvents
-         simulateWorld
+         (simulateWorld True)
 
 
         
+{--
+| any (collides (Bullet p v a)) rocks 
+            = case ufo1 of
+              Hunting pos v t -> 
+                let -- 
+                  maailma = (tilat ufo1) !! 1 -- otetaan tulevaisuuden tila
+                  (Play _ (Ship laivaPos _)  _ _ ) = maailma -- otetaan maailmasta laivan paikka
+                  ufonVierus = pos .+ (40.*norm ( laivaPos .- pos )) -- ei ammuta ihan ufon kohdalta
+                  v_suunta = norm ( laivaPos .- ufonVierus ) -- lasketaan suunta
+                  v_suuruus = (magV (ufonVierus .- laivaPos)) / (10*timeStep) -- lasketaan suuruus 
+                  newBullet = Bullet ufonVierus -- luodaan uusi luoti
+                        (v_suuruus .* v_suunta) 
+                        0
+                in [newBullet]
+              otherwise -> []
+              --}
