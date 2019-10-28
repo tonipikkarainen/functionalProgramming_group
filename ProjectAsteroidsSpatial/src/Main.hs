@@ -30,7 +30,8 @@ data Rock   = Rock   PointInSpace Size Velocity
 
 data Ufo = Hunting PointInSpace Velocity Health
           | Fleeing PointInSpace Velocity Health
-          | Exploding PointInSpace | Waiting PointInSpace Health
+          | Exploding PointInSpace
+          | Waiting PointInSpace Health
     deriving (Eq,Show)
 
 instance Spatial Ship where
@@ -63,7 +64,7 @@ initialWorld = Play
                    ] -- The default rocks
                    (Ship (0,0) (0,5)) -- The initial ship
                    [] -- The initial bullets (none)
-                   (Hunting (20,0) (0,5) 4) -- The initial Ufo (added)
+                   (Hunting (-50,-50) (0,2) 4) -- The initial Ufo (added)
 
 
 simulateWorld :: Float -> (AsteroidWorld -> AsteroidWorld)
@@ -85,9 +86,9 @@ simulateWorld _        GameOver          = GameOver
 -- eikä enää pääse muuhun tilaan.
 --
 simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
-  | any (collides shipPos) rocks = GameOver
+  | any (collides (Ship shipPos shipV)) rocks = GameOver
   | collides (Ship shipPos shipV) ufo = GameOver
-  | otherwise = Play (concatMap updateRock ufo rocks)
+  | otherwise = Play (concatMap (updateRock ufo) rocks)
                               (Ship newShipPos shipV)
                               (concat (map updateBullet bullets))
                               (updateUfo ufo) -- ufo added
@@ -98,30 +99,10 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
 
     collidesWithBullet :: Spatial a => a -> Bool
     collidesWithBullet r = any (\b -> collides b r) bullets
-    {-
-      collidesWith :: PointInSpace -> Rock -> Bool
-      collidesWith p (Rock rp s _)
-       = magV (rp .- p) < s
 
-      collidesWithBullet :: Rock -> Bool
-      collidesWithBullet r
-       = any (\(Bullet bp _ _) -> collidesWith bp r) bullets
 
--- added collidesfunction
-      collidesWithBulletUfo :: Ufo ->  Bool
-      collidesWithBulletUfo ufo
-       = any (\(Bullet bp _ _) -> collidesWithUfo bp ufo) bullets
-
-      collidesWithUfo :: PointInSpace -> Ufo -> Bool
-      collidesWithUfo pos ufo = case ufo of
-         Hunting x _ _ -> magV (x .- pos) < 20
-         Fleeing x _ _ -> magV (x .- pos) < 20
-         Waiting x _ -> magV (x .- pos) < 20
-         Exploding _ -> False
-         -}
-
-      updateRock :: Ufo -> Rock -> [Rock]
-      updateRock u r@(Rock p s v)
+    updateRock :: Ufo -> Rock -> [Rock]
+    updateRock u r@(Rock p s v)
        | collidesWithBullet r && s < 7
             = []
        | collidesWithBullet r && s > 7
@@ -130,8 +111,8 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
        | otherwise
             = [Rock (restoreToScreen (p .+ timeStep .* v)) s v]
 
-      updateBullet :: Bullet -> [Bullet]
-      updateBullet (Bullet p v a)
+    updateBullet :: Bullet -> [Bullet]
+    updateBullet (Bullet p v a)
         | a > 5
              = []
         | any (collides (Bullet p v a)) rocks
@@ -146,8 +127,8 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
                        (a + timeStep)]
 
 -- ADDED updateUfo function that updates in which state the ufo is in
-      updateUfo :: Ufo -> Ufo
-      updateUfo ufox = case ufox of
+    updateUfo :: Ufo -> Ufo
+    updateUfo ufox = case ufox of
          Hunting pos v health
             | collidesWithBullet ufox -> Fleeing (restoreToScreen (pos .+ timeStep .* v))
               (magV(shipV).*norm(pos .- shipPos)) (health-1)
@@ -167,8 +148,8 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
             | otherwise -> Waiting (restoreToScreen (pos)) (health)
          Exploding (xu,yu) -> Exploding (xu,yu)
 
-      newShipPos :: PointInSpace
-      newShipPos = restoreToScreen (shipPos .+ timeStep .* shipV)
+    newShipPos :: PointInSpace
+    newShipPos = restoreToScreen (shipPos .+ timeStep .* shipV)
 
 -- UFO position removed here
 
