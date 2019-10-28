@@ -27,9 +27,7 @@ data Bullet = Bullet PointInSpace Velocity Age
     deriving (Eq,Show)
 data Rock   = Rock   PointInSpace Size Velocity
     deriving (Eq,Show)
--- Added UFO with different constructors
---data Ufo  = Ufo  PointInSpace Velocity
---    deriving (Eq,Show)
+
 data Ufo = Hunting PointInSpace Velocity Health
           | Fleeing PointInSpace Velocity Health
           | Exploding PointInSpace | Waiting PointInSpace Health
@@ -88,14 +86,15 @@ simulateWorld _        GameOver          = GameOver
 --
 simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
   | any (collides shipPos) rocks = GameOver
-  | otherwise = Play (concatMap updateRock rocks)
+  | collides (Ship shipPos shipV) ufo = GameOver
+  | otherwise = Play (concatMap updateRock ufo rocks)
                               (Ship newShipPos shipV)
                               (concat (map updateBullet bullets))
                               (updateUfo ufo) -- ufo added
   where
     -- TÄSSÄ UUDET FUNKTIOT TYYPPILUOKAN AVULLA
     collides :: (Spatial a, Spatial b) => a -> b -> Bool
-    collides x y = magV (location x, location y) < size y
+    collides x y = magV (location x .- location y) < size y
 
     collidesWithBullet :: Spatial a => a -> Bool
     collidesWithBullet r = any (\b -> collides b r) bullets
@@ -127,7 +126,7 @@ simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
             = []
        | collidesWithBullet r && s > 7
             = splitRock r
-       | collides r u = [Rock (restoreToScreen (p .+ timeStep .* (2*v))) s (2*v)]
+       | (collides r u) = [Rock (restoreToScreen (p .+ timeStep .* (2*v))) s (2*v)]
        | otherwise
             = [Rock (restoreToScreen (p .+ timeStep .* v)) s v]
 
