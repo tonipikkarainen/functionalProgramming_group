@@ -87,7 +87,7 @@ simulateWorld _        GameOver          = GameOver
 --
 simulateWorld timeStep (Play rocks (Ship shipPos shipV) bullets ufo)
   | any (collides (Ship shipPos shipV)) rocks = GameOver
-  | collides (Ship shipPos shipV) ufo = GameOver
+--  | collides (Ship shipPos shipV) ufo = GameOver
   | otherwise = Play (concatMap (updateRock ufo) rocks)
                               (Ship newShipPos shipV)
                               (concat (map updateBullet bullets))

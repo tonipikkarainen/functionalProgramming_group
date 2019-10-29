@@ -1,0 +1,50 @@
+EXConcatMapProof
+
+a)
+concat (map f x:map (map f) xs) == map f x ++ concat (map (map f) xs)
+
+concat (map f x:map (map f) xs)
+-- määritelmän Concat.2 perusteella: concat (x:xs) = x ++ concat xs,
+-- tässä x= map f x ja xs= map (map f) xs eli
+== map f x ++ concat (map (map f) xs)
+
+
+
+b)
+map f x ++ map f y == map f (x++y)
+
+määritelmät:
+1. [] ++ ys = ys
+2. (x:xs) ++ ys = x:(xs++ys)
+
+3. map f [] = []
+4. map f (x:xs) = f x : map f xs
+
+
+Induktio-oletus: map f xs ++ map f ys == map f (xs ++ ys)
+Väite: map f (x:xs) ++ map f ys == map f ((x:xs) ++ ys)
+
+map f (x:xs) ++ map f ys
+== {määritelmä 4}
+f x : map f xs ++ map f ys
+== {määritelmä 2}
+f x : (map f xs ++ map f ys)
+== {induktio-oletus}
+f x : (map f (xs ++ ys))
+== {määritelmä 4}
+map f (x:(xs ++ ys))
+== {määritelmä 2}
+map f ((x:xs) ++ ys)
+
+Todistettu. Todistetaan vielä, että pätee tyhjälle listalle.
+map f [] ++ map f ys = map f ([]++ ys)
+
+map f [] ++ map f ys
+== {määritelmä 3}
+[] ++ map f ys
+== {tyhjän listan pois jättäminen}
+map f ys
+== {määritelmä 1}
+map f ([]++ys)
+
+Pätee myös tyhjälle listalle. 
