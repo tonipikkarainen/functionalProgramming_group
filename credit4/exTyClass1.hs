@@ -34,9 +34,10 @@ instance Seasonal Event where
 -- 1858-11-17 on päivä numero 0 ja vuorokaudessa 86401 s
 
 instance Seasonal UTCTime where
-    (UTCTime day time)
-     | day 'mod' 365 < 14 = Autumn
-     | day 'mod' 365 < 91 = Winter
-     | day 'mod' 365 < 183 = Spring
-     | day 'mod' 365 < 275 = Summer
-     | day 'mod' 365 < 365 = Autumn
+    season (UTCTime day time)
+     | (d `mod` 365) < 14 = Autumn
+     | (d `mod` 365) < 91 = Winter
+     | (d `mod` 365) < 183 = Spring
+     | (d `mod` 365) < 275 = Summer
+     | (d `mod` 365) < 365 = Autumn
+        where d= fromEnum day
