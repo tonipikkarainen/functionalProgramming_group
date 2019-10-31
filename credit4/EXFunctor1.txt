@@ -1,0 +1,41 @@
+Functor laws
+
+
+map _ []     = []             -- map 1
+map f (x:xs) = f x : map f xs -- map 2
+
+second functor law: map (f . g) = map f . map g
+
+TODISTUS:
+
+Vaihe 1, tyhjä lista
+map (f . g) []
+== {- Map 1 -}
+[]
+== {- Inverse of Map 1 -}
+map f []
+== {- sääntö map 1 pätee tähän - aukkopaikan kohdalle voi laittaa mitä vaan,
+      tässä tapauksessa (map g [])  -}
+map f (map g [])
+== {- Inverse of definition of (.) -}
+(map f . map g) []
+
+
+Vaihe 2, induktio
+
+induktio-oletus: map (f . g) xs == (map f . map g) xs
+halutaan todistaa: map (f . g) (x:xs) == (map f . map g) (x:xs)
+
+map (f . g) (x:xs)
+== {- Map 2 -}
+(f . g) x : map (f . g) xs
+== {- The inductive assumption -}
+(f . g) x : (map f . map g) xs
+== {- (.) määritelmä -}
+f (g  x) : (map f (map g xs))
+== {- map 2 -}
+map f (g x:map g xs)
+== {- map 2 -}
+map f (map g (x:xs))
+== {- Definition of (.)-}
+(map f . map g) (x:xs)
