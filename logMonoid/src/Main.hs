@@ -54,24 +54,31 @@ firstOn = foldMap (\x -> if (event x) == PowerOn
 
 --- exCyclesMonoid
 
-data Events a = Events a [a] a | Empty deriving (Eq, Show)
+data Events a = Events a Int a | Empty deriving (Eq, Show)
 
 instance Eq a => Monoid (Events a) where
   mempty = Empty
 
-instance Eq a => Semigroup (Events a) where
+{-instance Eq a => Semigroup (Events a) where
   (Events x xs y) <> (Events z zs w) =
     if y==z then Events x (xs ++ tail zs) w
-            else Events x (xs ++ zs) w
+            else Events x (xs ++ zs) w -}
   --- tarkistetaan siis ovatko ensimmäinen ja viimeinen samat ja jos ovat,
   -- hävitetään toinen
+
+instance Eq a => Semigroup (Events a) where
+  (Events a x b) <> (Events c y d) = Events a xs d
+       where
+        xs
+         | b /= c = (x + y + 1)
+         | otherwise = (x+y)
 
 cycles :: [EventRecord] -> MonMap String (Sum Int)
 cycles = fmap g . foldMap f
     where
       f :: EventRecord -> MonMap String (Events EVT)
-      f = \x -> mon (systemID x) (Events (event x) [event x] (event x))
+      f = \x -> mon (systemID x) (Events (event x) 0 (event x))
       g :: Events EVT -> Sum Int
-      g (Events x xs y) = if x == PowerOff
-                             then Sum ((length xs - 1) `div` 2)
-                             else Sum ((length xs) `div` 2)
+      g (Events x z y) = if x == PowerOff
+                             then Sum ((z) `div` 2)
+                             else Sum ((z+1) `div` 2)
